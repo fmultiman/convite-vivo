@@ -278,15 +278,22 @@ export const placementSchema = z.object({
 export const decorItemSchema = placementSchema.extend({
   asset: idSchema,
   /** Profundidade: controla parallax e desfoque de campo. */
-  plane: z.enum(["far", "mid", "near"]).default("mid"),
-  motion: z.enum(["none", "float", "sway", "rise", "twinkle"]).default("none"),
+  plane: z.enum(["far", "mid", "near", "front"]).default("mid"),
+  /**
+   * "idle" = flutuar suave de personagem/objeto principal (sobe e desce, inclina um
+   * pouco); "rise" = bolha em CSS que sobe a tela toda.
+   */
+  motion: z.enum(["none", "float", "sway", "rise", "twinkle", "idle"]).default("none"),
   /** Sombra de contato (objeto apoiado no chão). */
   shadow: z.boolean().default(false),
   flip: z.boolean().default(false),
   /** Atraso da animação, em segundos. */
   delay: z.number().min(0).max(20).default(0),
-  /** "onOpen": só aparece quando a entrada é aberta (ex.: bolhas liberadas). */
-  appear: z.enum(["always", "onOpen"]).default("always"),
+  /**
+   * "onOpen": só aparece quando a entrada é aberta (ex.: bolhas liberadas).
+   * "withoutCanvas": versão em CSS do efeito; some quando o canvas está ativo.
+   */
+  appear: z.enum(["always", "onOpen", "withoutCanvas"]).default("always"),
 });
 
 const entryScene = z.object({
@@ -310,6 +317,68 @@ const entryScene = z.object({
   decor: z.array(decorItemSchema).default([]),
   /** Transição ao entrar. Com reduced motion vira um fade curto. */
   transition: z.enum(["bubbles", "sparkles", "fade"]),
+  /** Cor do véu do mergulho (use a cor média da cena seguinte para uma passagem contínua). */
+  transitionTint: hexColor.optional(),
+});
+
+/**
+ * Peixinho decorativo (sprite SVG independente do fundo). Atravessa o palco na
+ * horizontal; o desenho e a animação são do renderer, sem asset de imagem.
+ */
+export const fishSchema = z.object({
+  /** Paleta de cores. */
+  variant: z.enum(["coral", "lilas", "aqua", "perola"]).default("coral"),
+  /** "fino" (alongado) ou "disco" (arredondado, cauda em leque). */
+  shape: z.enum(["fino", "disco"]).default("fino"),
+  /** Altura da trajetória, em % do palco. */
+  y: z.number().min(0).max(100),
+  /** Largura do peixe, em % do palco. */
+  size: z.number().min(2).max(24),
+  plane: z.enum(["far", "mid", "near"]).default("mid"),
+  direction: z.enum(["ltr", "rtl"]).default("ltr"),
+  /** Tempo de uma travessia completa, em segundos. */
+  duration: z.number().min(10).max(120).default(40),
+  /** Quanto da travessia já foi percorrido ao carregar (0..1): evita todos nascerem juntos. */
+  phase: z.number().min(0).max(1).default(0),
+});
+
+/**
+ * Palco em camadas (fundo + luz + decoração + peixes + bolhas CSS + canvas atmosférico
+ * + texto HTML). Em primeiro plano ficam as bolhas CSS (decor plane "front"); o canvas
+ * é um aprimoramento opcional que só acrescenta microbolhas e partículas sutis.
+ * Sem canvas a cena continua completa, com partículas em CSS.
+ */
+const stageScene = z.object({
+  kind: z.literal("stage"),
+  ...sceneBase,
+  eyebrow: z.string().optional(),
+  headline: z.string().optional(),
+  body: z.string().optional(),
+  /** Texto do indicador para rolar (ex.: "Deslize para continuar"). */
+  scrollHint: z.string().max(40).optional(),
+  background: idSchema,
+  decor: z.array(decorItemSchema).default([]),
+  fish: z.array(fishSchema).max(14).default([]),
+  /** Ambiência: raios de luz vindos de cima, partículas em CSS e parallax leve. */
+  ambience: z
+    .object({
+      /** Intensidade dos raios de luz (0 desliga). */
+      light: z.number().min(0).max(1).default(0.6),
+      /** Partículas em CSS (usadas quando não há canvas). */
+      motes: z.number().int().min(0).max(24).default(10),
+      /** Parallax leve com o mouse (em toque, só a deriva lenta das camadas). */
+      parallax: z.boolean().default(true),
+    })
+    .default({ light: 0.6, motes: 10, parallax: true }),
+  canvas: z
+    .object({
+      /** Imagens (assets) usadas como microbolhas; sem elas o canvas desenha bolhas simples. */
+      sprites: z.array(idSchema).max(6).default([]),
+      density: z.number().min(0.2).max(2).default(1),
+      /** Quantidade de partículas flutuantes (neve marinha), multiplicador. */
+      motes: z.number().min(0).max(2).default(1),
+    })
+    .optional(),
 });
 
 const revealScene = z.object({
@@ -326,6 +395,7 @@ const revealScene = z.object({
 
 export const sceneSchema = z.discriminatedUnion("kind", [
   entryScene,
+  stageScene,
   revealScene,
   imageScene,
   videoScene,
@@ -470,6 +540,11 @@ export const eventConfigSchema = z
           }
           scene.decor.forEach((item, i) => requireAsset(item.asset, "image", [...path, "decor", i, "asset"]));
           break;
+        case "stage":
+          requireAsset(scene.background, "image", [...path, "background"]);
+          scene.decor.forEach((item, i) => requireAsset(item.asset, "image", [...path, "decor", i, "asset"]));
+          scene.canvas?.sprites.forEach((id, i) => requireAsset(id, "image", [...path, "canvas", "sprites", i]));
+          break;
         case "image":
           requireAsset(scene.asset, "image", [...path, "asset"]);
           break;
@@ -535,5 +610,6 @@ export type FontKey = (typeof fontKeys)[number];
 export type Motif = (typeof motifs)[number];
 export type Placement = z.output<typeof placementSchema>;
 export type DecorItem = z.output<typeof decorItemSchema>;
+export type Fish = z.output<typeof fishSchema>;
 export type EditorialStatus = (typeof editorialStatuses)[number];
 export type Phase = (typeof phases)[number];

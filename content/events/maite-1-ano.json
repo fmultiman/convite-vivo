@@ -219,6 +219,126 @@
       "alt": "Pérola rosada.",
       "placeholderLabel": "Pérola rosada",
       "source": "Biblioteca visual · pérolas"
+    },
+    "bg-mar": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/bg-mar.webp",
+      "width": 941,
+      "height": 1672,
+      "alt": "Fundo do mar encantado com raios de luz, corais e um corredor de areia.",
+      "placeholderLabel": "bg-mar",
+      "source": "BG02 · fundo-do-mar"
+    },
+    "alga-ondulada": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/alga-ondulada.webp",
+      "width": 146,
+      "height": 288,
+      "alt": "Alga turquesa ondulada.",
+      "placeholderLabel": "alga-ondulada",
+      "source": "Biblioteca visual · plantas"
+    },
+    "alga-verde": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/alga-verde.webp",
+      "width": 150,
+      "height": 227,
+      "alt": "Alga verde.",
+      "placeholderLabel": "alga-verde",
+      "source": "Biblioteca visual · plantas"
+    },
+    "coral-azul": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/coral-azul.webp",
+      "width": 176,
+      "height": 202,
+      "alt": "Coral azul ramificado com pérolas.",
+      "placeholderLabel": "coral-azul",
+      "source": "Biblioteca visual · corais"
+    },
+    "coral-leque": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/coral-leque.webp",
+      "width": 180,
+      "height": 200,
+      "alt": "Coral roxo em leque com pérolas.",
+      "placeholderLabel": "coral-leque",
+      "source": "Biblioteca visual · corais"
+    },
+    "estrela-rosa": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/estrela-rosa.webp",
+      "width": 200,
+      "height": 234,
+      "alt": "Estrela-do-mar rosa com pérolas.",
+      "placeholderLabel": "estrela-rosa",
+      "source": "Biblioteca visual · estrelas-do-mar"
+    },
+    "cordao-espiral": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/cordao-espiral.webp",
+      "width": 262,
+      "height": 156,
+      "alt": "Cordão de pérolas em espiral.",
+      "placeholderLabel": "cordao-espiral",
+      "source": "Biblioteca visual · pérolas"
+    },
+    "conchas-corais": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/conchas-corais.webp",
+      "width": 318,
+      "height": 382,
+      "alt": "Arranjo de conchas, corais e pérolas.",
+      "placeholderLabel": "conchas-corais",
+      "source": "Biblioteca visual · decorativos"
+    },
+    "alga-rosa": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/alga-rosa.webp",
+      "width": 99,
+      "height": 297,
+      "alt": "Alga marinha rosa e lilás.",
+      "placeholderLabel": "Alga rosa",
+      "source": "Biblioteca visual — plantas"
+    },
+    "alga-turquesa": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/alga-turquesa.webp",
+      "width": 147,
+      "height": 284,
+      "alt": "Alga marinha verde-água com bolhas e pérolas.",
+      "placeholderLabel": "Alga turquesa",
+      "source": "Biblioteca visual — plantas"
+    },
+    "folha-rosa": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/folha-rosa.webp",
+      "width": 115,
+      "height": 293,
+      "alt": "Ramo delicado de folhagem marinha rosa com pérolas.",
+      "placeholderLabel": "Folhagem rosa",
+      "source": "Biblioteca visual — plantas"
+    },
+    "folha-roxa": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-02/folha-roxa.webp",
+      "width": 151,
+      "height": 290,
+      "alt": "Ramo de folhagem marinha roxa com pérolas.",
+      "placeholderLabel": "Folhagem roxa",
+      "source": "Biblioteca visual — plantas"
     }
   },
   "scenes": [
@@ -500,7 +620,355 @@
           "appear": "onOpen",
           "delay": 0.5
         }
-      ]
+      ],
+      "transitionTint": "#51B9E7"
+    },
+    {
+      "kind": "stage",
+      "id": "mergulho",
+      "eyebrow": "Você vem comigo?",
+      "headline": "Bem-vindo ao fundo do mar encantado",
+      "body": "Respire fundo… e deixe as bolhas mostrarem o caminho.",
+      "scrollHint": "Deslize para continuar",
+      "background": "bg-mar",
+      "decor": [
+        {
+          "asset": "coral-azul",
+          "x": 44,
+          "y": 53,
+          "width": 8,
+          "plane": "far"
+        },
+        {
+          "asset": "coral-leque",
+          "x": 57,
+          "y": 55.5,
+          "width": 8,
+          "plane": "far"
+        },
+        {
+          "asset": "alga-ondulada",
+          "x": 50.5,
+          "y": 51,
+          "width": 4.6,
+          "plane": "far",
+          "motion": "sway",
+          "delay": 0.6
+        },
+        {
+          "asset": "alga-verde",
+          "x": 31,
+          "y": 69.8,
+          "width": 8.5,
+          "motion": "sway",
+          "delay": 0.4,
+          "shadow": true
+        },
+        {
+          "asset": "alga-ondulada",
+          "x": 69,
+          "y": 67.8,
+          "width": 8,
+          "motion": "sway",
+          "delay": 1.3,
+          "shadow": true
+        },
+        {
+          "asset": "estrela-rosa",
+          "x": 36,
+          "y": 84,
+          "width": 12,
+          "shadow": true,
+          "tilt": 28,
+          "rotate": -12
+        },
+        {
+          "asset": "cordao-espiral",
+          "x": 58,
+          "y": 89,
+          "width": 20,
+          "shadow": true,
+          "tilt": 38,
+          "rotate": 8
+        },
+        {
+          "asset": "perola-a",
+          "x": 64,
+          "y": 80,
+          "width": 4.2,
+          "shadow": true,
+          "motion": "twinkle",
+          "delay": 0.8
+        },
+        {
+          "asset": "perola-b",
+          "x": 30,
+          "y": 92,
+          "width": 4,
+          "shadow": true,
+          "motion": "twinkle",
+          "delay": 2.0
+        },
+        {
+          "asset": "folha-rosa",
+          "x": 22,
+          "y": 61,
+          "width": 5.4,
+          "motion": "sway",
+          "delay": 0.9,
+          "plane": "far"
+        },
+        {
+          "asset": "folha-roxa",
+          "x": 80,
+          "y": 59,
+          "width": 6,
+          "motion": "sway",
+          "delay": 1.7,
+          "plane": "far"
+        },
+        {
+          "asset": "alga-rosa",
+          "x": 14,
+          "y": 75,
+          "width": 6,
+          "motion": "sway",
+          "delay": 0.2
+        },
+        {
+          "asset": "alga-turquesa",
+          "x": 87,
+          "y": 79,
+          "width": 9,
+          "motion": "sway",
+          "delay": 1.1
+        },
+        {
+          "asset": "alga-turquesa",
+          "x": 7,
+          "y": 90,
+          "width": 11,
+          "motion": "sway",
+          "delay": 2.2,
+          "plane": "near"
+        },
+        {
+          "asset": "alga-rosa",
+          "x": 94,
+          "y": 91,
+          "width": 8,
+          "motion": "sway",
+          "delay": 3.0,
+          "plane": "near",
+          "flip": true
+        },
+        {
+          "asset": "conchas-corais",
+          "x": -3,
+          "y": 99,
+          "width": 34,
+          "plane": "near"
+        },
+        {
+          "asset": "conchas-corais",
+          "x": 104,
+          "y": 100,
+          "width": 30,
+          "plane": "near",
+          "flip": true
+        },
+        {
+          "asset": "bolha-m",
+          "x": 16,
+          "y": 70,
+          "width": 7,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 0.0
+        },
+        {
+          "asset": "bolha-p",
+          "x": 27,
+          "y": 40,
+          "width": 4.5,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 1.6
+        },
+        {
+          "asset": "bolha-g",
+          "x": 35,
+          "y": 58,
+          "width": 9.5,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 3.2
+        },
+        {
+          "asset": "bolha-m",
+          "x": 48,
+          "y": 78,
+          "width": 5.5,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 4.8
+        },
+        {
+          "asset": "bolha-p",
+          "x": 57,
+          "y": 30,
+          "width": 4,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 6.4
+        },
+        {
+          "asset": "bolha-g",
+          "x": 66,
+          "y": 62,
+          "width": 10,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 8.0
+        },
+        {
+          "asset": "bolha-m",
+          "x": 76,
+          "y": 44,
+          "width": 6,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 9.6
+        },
+        {
+          "asset": "bolha-p",
+          "x": 84,
+          "y": 72,
+          "width": 4.5,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 11.2
+        },
+        {
+          "asset": "bolha-m",
+          "x": 22,
+          "y": 86,
+          "width": 5,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 12.8
+        },
+        {
+          "asset": "bolha-m",
+          "x": 72,
+          "y": 86,
+          "width": 7,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 14.4
+        }
+      ],
+      "canvas": {
+        "sprites": [
+          "bolha-g",
+          "bolha-m",
+          "bolha-p"
+        ],
+        "density": 1,
+        "motes": 1
+      },
+      "fish": [
+        {
+          "variant": "lilas",
+          "y": 34,
+          "size": 6,
+          "plane": "far",
+          "direction": "ltr",
+          "duration": 48,
+          "phase": 0.15
+        },
+        {
+          "variant": "coral",
+          "y": 31,
+          "size": 5.5,
+          "plane": "far",
+          "direction": "ltr",
+          "duration": 60,
+          "phase": 0.8,
+          "shape": "disco"
+        },
+        {
+          "variant": "aqua",
+          "y": 37,
+          "size": 3.6,
+          "plane": "far",
+          "direction": "rtl",
+          "duration": 50,
+          "phase": 0.2
+        },
+        {
+          "variant": "aqua",
+          "y": 39.5,
+          "size": 3.4,
+          "plane": "far",
+          "direction": "rtl",
+          "duration": 50,
+          "phase": 0.23
+        },
+        {
+          "variant": "aqua",
+          "y": 41.5,
+          "size": 3.2,
+          "plane": "far",
+          "direction": "rtl",
+          "duration": 50,
+          "phase": 0.26
+        },
+        {
+          "variant": "coral",
+          "y": 52,
+          "size": 9,
+          "plane": "mid",
+          "direction": "ltr",
+          "duration": 34,
+          "phase": 0.5
+        },
+        {
+          "variant": "aqua",
+          "y": 61,
+          "size": 8,
+          "plane": "mid",
+          "direction": "rtl",
+          "duration": 40,
+          "phase": 0.1,
+          "shape": "disco"
+        },
+        {
+          "variant": "lilas",
+          "y": 44,
+          "size": 7.5,
+          "plane": "mid",
+          "direction": "ltr",
+          "duration": 44,
+          "phase": 0.9,
+          "shape": "disco"
+        },
+        {
+          "variant": "perola",
+          "y": 70,
+          "size": 13,
+          "plane": "near",
+          "direction": "rtl",
+          "duration": 30,
+          "phase": 0.55,
+          "shape": "disco"
+        }
+      ],
+      "ambience": {
+        "light": 0.62,
+        "motes": 10,
+        "parallax": true
+      }
     },
     {
       "kind": "image",

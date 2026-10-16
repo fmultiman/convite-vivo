@@ -59,3 +59,21 @@ export function prefersLightweightMedia(): boolean {
     .connection;
   return Boolean(connection?.saveData || connection?.effectiveType?.includes("2g"));
 }
+
+function subscribeHash(onChange: () => void) {
+  window.addEventListener("hashchange", onChange);
+  return () => window.removeEventListener("hashchange", onChange);
+}
+
+/**
+ * Modo de efeitos para revisão A/B da cena submarina: "#fx=css" desliga o
+ * canvas e deixa só a versão em CSS. Sem a marca, o canvas é usado (com
+ * fallback automático). É uma chave local de revisão, não uma flag global.
+ */
+export function useFxMode(): "canvas" | "css" {
+  return useSyncExternalStore(
+    subscribeHash,
+    () => (window.location.hash.includes("fx=css") ? "css" : "canvas"),
+    () => "canvas",
+  );
+}

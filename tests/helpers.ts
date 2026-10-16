@@ -14,3 +14,10 @@ export function rawDemo(): Record<string, any> {
 export function parsed(raw: unknown): EventConfig {
   return eventConfigSchema.parse(raw);
 }
+
+/** Cena (mutável) da config bruta, por id: os testes não dependem da ordem das cenas. */
+export function sceneOf(raw: Record<string, any>, id: string): Record<string, any> {
+  const scene = raw.scenes.find((s: { id: string }) => s.id === id);
+  if (!scene) throw new Error(`cena "${id}" não existe na config`);
+  return scene;
+}

@@ -6,6 +6,7 @@ import { GiftsScene } from "./scenes/GiftsScene";
 import { ImageScene } from "./scenes/ImageScene";
 import { MessageScene } from "./scenes/MessageScene";
 import { RevealScene } from "./scenes/RevealScene";
+import { StageScene } from "./scenes/StageScene";
 import { VideoScene } from "./scenes/VideoScene";
 
 /**
@@ -13,11 +14,24 @@ import { VideoScene } from "./scenes/VideoScene";
  * comportamento. O `switch` é exaustivo — um novo tipo de cena no contrato
  * não compila até ganhar um componente aqui.
  */
-export function SceneView({ scene, model }: { scene: ResolvedScene | ResolvedContentScene; model: ExperienceModel }) {
+export function SceneView({
+  scene,
+  model,
+  first = false,
+}: {
+  scene: ResolvedScene | ResolvedContentScene;
+  model: ExperienceModel;
+  /** Primeira cena depois da entrada (recebe a animação de chegada). */
+  first?: boolean;
+}) {
   switch (scene.kind) {
     case "entry":
       // A entrada é montada fora do <main> pelo EventExperience.
       return null;
+    case "stage": {
+      const entry = model.scenes.find((s) => s.kind === "entry");
+      return <StageScene scene={scene} first={first} tint={entry?.kind === "entry" ? entry.transitionTint : undefined} />;
+    }
     case "reveal":
       return (
         <RevealScene id={scene.id} motif={scene.motif} prompt={scene.prompt} eyebrow={scene.eyebrow} headline={scene.headline}>

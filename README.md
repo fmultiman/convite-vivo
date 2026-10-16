@@ -36,6 +36,8 @@ npm run dev            # http://localhost:3000 (prévia de rascunhos ligada)
 | `npm run verify` | typecheck + lint + safety + testes + build |
 | `npm run schema` | Regenera `content/event.schema.json` a partir do contrato |
 | `npm run assets:scene-01` | Regenera os WebP da Cena 1 a partir de `assets/` (privado, fora do git). Os WebP resultantes **são versionados** |
+| `npm run assets:scene-02` | Regenera os 12 WebP da cena submarina; reutiliza bolhas e pérolas da Cena 1 |
+| `npm run assets:scene-03-private` | Prepara (em `assets/_prepared/`, fora do Git e de `public/`) o PNG da Maitê no cavalo-marinho para a Cena 03 |
 | `npm run smoke -- <url> [--preview]` | Smoke HTTP contra um servidor rodando (status, OG, headers) |
 
 Smoke de produção: `npm run build && npx next start -p 3100` e, em outro
@@ -57,7 +59,7 @@ src/
     EventExperience.tsx      Componente raiz (igual para todos os eventos)
     SceneView.tsx            Registro exaustivo cena → componente
     scenes/                  Entry, Image, Video, Reveal, Details, Actions, Gifts,
-                             Countdown, Message
+                             Countdown, Message, Stage (palco em camadas)
     primitives/              Motivos SVG, partículas, imagem/placeholder, "a confirmar"
     client/                  Áudio, aviso de fase, replay, hooks
   app/                       Rotas Next: /e/[slug], /preview/[slug], /og/[slug]
@@ -81,6 +83,8 @@ não referencia eventos específicos.
 ## Documentação
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — decisões técnicas e porquês
+- [docs/SCENE_02.md](docs/SCENE_02.md) — experimento submarino V1, comparação CSS/Canvas, evidências e limites da validação
+- [docs/SCENE_02_V2.md](docs/SCENE_02_V2.md) — Cena 02 v2 (híbrida): luz, peixes, plantas, camadas e preparação da Cena 03
 - [docs/ASSETS.md](docs/ASSETS.md) — como integrar os assets reais da Maitê
 - [docs/MAITE_ASSET_INTEGRATION.md](docs/MAITE_ASSET_INTEGRATION.md) — inventário, curadoria e plano de integração da biblioteca visual
 - [docs/LACUNAS.md](docs/LACUNAS.md) — pendências, limitações e próximos passos

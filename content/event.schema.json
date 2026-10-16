@@ -672,7 +672,8 @@
                       "enum": [
                         "far",
                         "mid",
-                        "near"
+                        "near",
+                        "front"
                       ]
                     },
                     "motion": {
@@ -683,7 +684,8 @@
                         "float",
                         "sway",
                         "rise",
-                        "twinkle"
+                        "twinkle",
+                        "idle"
                       ]
                     },
                     "shadow": {
@@ -705,7 +707,8 @@
                       "type": "string",
                       "enum": [
                         "always",
-                        "onOpen"
+                        "onOpen",
+                        "withoutCanvas"
                       ]
                     }
                   },
@@ -724,6 +727,10 @@
                   "sparkles",
                   "fade"
                 ]
+              },
+              "transitionTint": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
               }
             },
             "required": [
@@ -733,6 +740,255 @@
               "ctaLabel",
               "motif",
               "transition"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "stage"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "eyebrow": {
+                "type": "string"
+              },
+              "headline": {
+                "type": "string"
+              },
+              "body": {
+                "type": "string"
+              },
+              "scrollHint": {
+                "type": "string",
+                "maxLength": 40
+              },
+              "background": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "decor": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "x": {
+                      "type": "number",
+                      "minimum": -10,
+                      "maximum": 110
+                    },
+                    "y": {
+                      "type": "number",
+                      "minimum": -10,
+                      "maximum": 110
+                    },
+                    "width": {
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "rotate": {
+                      "default": 0,
+                      "type": "number",
+                      "minimum": -180,
+                      "maximum": 180
+                    },
+                    "tilt": {
+                      "default": 0,
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 60
+                    },
+                    "asset": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9-]*$"
+                    },
+                    "plane": {
+                      "default": "mid",
+                      "type": "string",
+                      "enum": [
+                        "far",
+                        "mid",
+                        "near",
+                        "front"
+                      ]
+                    },
+                    "motion": {
+                      "default": "none",
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "float",
+                        "sway",
+                        "rise",
+                        "twinkle",
+                        "idle"
+                      ]
+                    },
+                    "shadow": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "flip": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "delay": {
+                      "default": 0,
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 20
+                    },
+                    "appear": {
+                      "default": "always",
+                      "type": "string",
+                      "enum": [
+                        "always",
+                        "onOpen",
+                        "withoutCanvas"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y",
+                    "width",
+                    "asset"
+                  ]
+                }
+              },
+              "fish": {
+                "default": [],
+                "maxItems": 14,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "variant": {
+                      "default": "coral",
+                      "type": "string",
+                      "enum": [
+                        "coral",
+                        "lilas",
+                        "aqua",
+                        "perola"
+                      ]
+                    },
+                    "shape": {
+                      "default": "fino",
+                      "type": "string",
+                      "enum": [
+                        "fino",
+                        "disco"
+                      ]
+                    },
+                    "y": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "size": {
+                      "type": "number",
+                      "minimum": 2,
+                      "maximum": 24
+                    },
+                    "plane": {
+                      "default": "mid",
+                      "type": "string",
+                      "enum": [
+                        "far",
+                        "mid",
+                        "near"
+                      ]
+                    },
+                    "direction": {
+                      "default": "ltr",
+                      "type": "string",
+                      "enum": [
+                        "ltr",
+                        "rtl"
+                      ]
+                    },
+                    "duration": {
+                      "default": 40,
+                      "type": "number",
+                      "minimum": 10,
+                      "maximum": 120
+                    },
+                    "phase": {
+                      "default": 0,
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  },
+                  "required": [
+                    "y",
+                    "size"
+                  ]
+                }
+              },
+              "ambience": {
+                "default": {
+                  "light": 0.6,
+                  "motes": 10,
+                  "parallax": true
+                },
+                "type": "object",
+                "properties": {
+                  "light": {
+                    "default": 0.6,
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "motes": {
+                    "default": 10,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 24
+                  },
+                  "parallax": {
+                    "default": true,
+                    "type": "boolean"
+                  }
+                }
+              },
+              "canvas": {
+                "type": "object",
+                "properties": {
+                  "sprites": {
+                    "default": [],
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9-]*$"
+                    }
+                  },
+                  "density": {
+                    "default": 1,
+                    "type": "number",
+                    "minimum": 0.2,
+                    "maximum": 2
+                  },
+                  "motes": {
+                    "default": 1,
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 2
+                  }
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "id",
+              "background"
             ]
           },
           {

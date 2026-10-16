@@ -37,8 +37,8 @@ export function EventExperience({ model }: { model: ExperienceModel }) {
       <main id={MAIN_ID} tabIndex={-1} className={styles.main}>
         {entry ? null : <h1 className="visually-hidden">{model.event.title}</h1>}
         <PhaseNotice lifecycle={model.lifecycle} />
-        {scenes.map((scene) => (
-          <SceneView key={scene.id} scene={scene} model={model} />
+        {scenes.map((scene, i) => (
+          <SceneView key={scene.id} scene={scene} model={model} first={Boolean(entry) && i === 0} />
         ))}
       </main>
 

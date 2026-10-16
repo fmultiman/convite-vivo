@@ -14,7 +14,9 @@
     "smoke": "node scripts/smoke.mjs",
     "verify": "npm run typecheck && npm run lint && npm run safety && npm test && npm run build",
     "assets:scene-01": "node scripts/build-scene-assets.mjs maite-1-ano/scene-01",
-    "safety": "node scripts/check-public-safety.mjs"
+    "safety": "node scripts/check-public-safety.mjs",
+    "assets:scene-02": "node scripts/build-scene-assets.mjs maite-1-ano/scene-02",
+    "assets:scene-03-private": "node scripts/build-scene-assets.mjs maite-1-ano/scene-03-private"
   },
   "engines": {
     "node": ">=24"

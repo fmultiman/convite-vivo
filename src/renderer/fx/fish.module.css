@@ -1,0 +1,125 @@
+/*
+ * Peixinhos SVG. Cada peixe: pista (atravessa o palco) > balanço > espelho > SVG.
+ * Só transform/opacity em movimento. Unidades cqw = largura do palco (o container é
+ * o .world da cena); sem suporte, os peixes ficam escondidos (a cena não depende deles).
+ */
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.lane {
+  position: absolute;
+  left: 0;
+  top: calc(var(--y) * 1%);
+  width: calc(var(--w) * 1%);
+  pointer-events: none;
+  animation: swim-ltr var(--dur) linear var(--delay) infinite;
+}
+.lane[data-dir="rtl"] {
+  animation-name: swim-rtl;
+}
+.lane[data-plane="far"] {
+  opacity: 0.55;
+}
+.lane[data-plane="mid"] {
+  opacity: 0.95;
+}
+/* Peixe de primeiro plano: mais translúcido e sem desfoque (filtro em elemento que
+   atravessa a tela a cada quadro é caro em celulares). */
+.lane[data-plane="near"] {
+  opacity: 0.8;
+}
+
+.bob {
+  animation: bob var(--bob, 3.6s) ease-in-out var(--bob-delay, 0s) infinite alternate;
+}
+.flip {
+  display: block;
+}
+.lane[data-dir="rtl"] .flip {
+  transform: scaleX(-1);
+}
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.tail {
+  transform-box: fill-box;
+  transform-origin: 100% 50%;
+  animation: wag var(--wag, 0.8s) ease-in-out infinite alternate;
+}
+.fin {
+  transform-box: fill-box;
+  transform-origin: 90% 20%;
+  animation: flutter 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes swim-ltr {
+  from {
+    transform: translate3d(-38cqw, 0, 0);
+  }
+  to {
+    transform: translate3d(138cqw, 0, 0);
+  }
+}
+@keyframes swim-rtl {
+  from {
+    transform: translate3d(138cqw, 0, 0);
+  }
+  to {
+    transform: translate3d(-38cqw, 0, 0);
+  }
+}
+@keyframes bob {
+  from {
+    transform: translateY(-14%) rotate(-2.4deg);
+  }
+  to {
+    transform: translateY(14%) rotate(2.4deg);
+  }
+}
+@keyframes wag {
+  from {
+    transform: rotate(-15deg);
+  }
+  to {
+    transform: rotate(15deg);
+  }
+}
+@keyframes flutter {
+  from {
+    transform: rotate(-9deg);
+  }
+  to {
+    transform: rotate(11deg);
+  }
+}
+
+@supports not (width: 1cqw) {
+  .lane {
+    display: none;
+  }
+}
+
+/* Movimento reduzido: os peixes ficam parados, em pontos discretos da cena. */
+@media (prefers-reduced-motion: reduce) {
+  .lane,
+  .lane[data-dir="rtl"] {
+    animation: none;
+    left: calc(var(--rest) * 1% - var(--w) * 0.5%);
+  }
+  .bob,
+  .tail,
+  .fin {
+    animation: none;
+  }
+  .lane[data-plane="far"] {
+    opacity: 0.4;
+  }
+}

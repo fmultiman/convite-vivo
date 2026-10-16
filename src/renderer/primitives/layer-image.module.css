@@ -1,0 +1,16 @@
+/* Imagem de camada: aparece com fade ao carregar e some sozinha se falhar. */
+.img {
+  display: block;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+:global(.js) .img:not([data-loaded]) {
+  opacity: 0;
+}
+.img[data-loaded] {
+  transition: opacity 450ms ease;
+}
+.img[data-failed] {
+  display: none;
+}

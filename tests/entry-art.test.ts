@@ -5,7 +5,7 @@ import { eventConfigSchema } from "@/contract/event.schema";
 import { getPublicationIssues } from "@/contract/rules";
 import { eventSources } from "@/events";
 import { resolveExperience } from "@/renderer/model";
-import { parsed, rawDemo, rawMaite } from "./helpers";
+import { parsed, rawDemo, rawMaite, sceneOf } from "./helpers";
 
 function issuesOf(raw: unknown): string[] {
   const result = eventConfigSchema.safeParse(raw);
@@ -25,18 +25,18 @@ describe("entrada em camadas — contrato", () => {
 
   it("rejeita decoração que aponta para asset inexistente ou de outro tipo", () => {
     const missing = rawMaite();
-    missing.scenes[0].decor[0].asset = "nao-existe";
+    sceneOf(missing, "praia").decor[0].asset = "nao-existe";
     expect(issuesOf(missing).some((i) => i.includes('asset "nao-existe" não existe'))).toBe(true);
 
     const wrongKind = rawMaite();
-    wrongKind.scenes[0].motifAsset = "teaser"; // vídeo
+    sceneOf(wrongKind, "praia").motifAsset = "teaser"; // vídeo
     expect(issuesOf(wrongKind).some((i) => i.includes("deveria ser image"))).toBe(true);
   });
 
   it("rejeita posição ou largura fora dos limites", () => {
     const raw = rawMaite();
-    raw.scenes[0].decor[0].x = 400;
-    raw.scenes[0].motifPlacement.width = 0;
+    sceneOf(raw, "praia").decor[0].x = 400;
+    sceneOf(raw, "praia").motifPlacement.width = 0;
     const issues = issuesOf(raw);
     expect(issues.some((i) => i.startsWith("scenes.0.decor.0.x"))).toBe(true);
     expect(issues.some((i) => i.startsWith("scenes.0.motifPlacement.width"))).toBe(true);
@@ -77,7 +77,7 @@ describe("entrada em camadas — modelo", () => {
     const raw = rawMaite();
     raw.assets["perola-a"].status = "pending";
     raw.assets["perola-a"].src = undefined;
-    const usesPerolaA = rawMaite().scenes[0].decor.filter((d: { asset: string }) => d.asset === "perola-a").length;
+    const usesPerolaA = sceneOf(rawMaite(), "praia").decor.filter((d: { asset: string }) => d.asset === "perola-a").length;
     expect(entryOf(raw).art!.decor.length).toBe(base - usesPerolaA);
   });
 
@@ -88,11 +88,11 @@ describe("entrada em camadas — modelo", () => {
   it("nunca expõe a criança na entrada: nenhum asset da cena é restrito", () => {
     const raw = rawMaite();
     const ids = new Set<string>([
-      raw.scenes[0].background,
-      raw.scenes[0].motifAsset,
-      raw.scenes[0].openAsset,
-      raw.scenes[0].tagAsset,
-      ...raw.scenes[0].decor.map((d: { asset: string }) => d.asset),
+      sceneOf(raw, "praia").background,
+      sceneOf(raw, "praia").motifAsset,
+      sceneOf(raw, "praia").openAsset,
+      sceneOf(raw, "praia").tagAsset,
+      ...sceneOf(raw, "praia").decor.map((d: { asset: string }) => d.asset),
     ]);
     for (const id of ids) {
       expect(raw.assets[id].src, id).toMatch(/^\/events\/maite-1-ano\/scene-01\/[a-z-]+\.webp$/);

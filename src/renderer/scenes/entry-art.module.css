@@ -362,10 +362,13 @@
 /* Sem a imagem aberta, o envelope fechado permanece. */
 .art[data-state="opening"] .trigger[data-has-open] .envClosed[data-loaded] {
   opacity: 0;
-  transition: opacity 240ms ease;
+  /* O aberto entra rápido e o fechado sai logo depois: a soma das opacidades nunca cai
+     (sem o "vale" que deixava o envelope pálido por alguns quadros). */
+  transition: opacity 180ms ease 90ms;
 }
 .art[data-state="opening"] .trigger[data-has-open] .envOpen[data-loaded] {
   opacity: 1 !important;
+  transition: opacity 150ms ease-out;
   animation: lift 800ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .art[data-state="opening"] .envTilt {
@@ -380,6 +383,15 @@
 }
 .art[data-state="opening"] .wash {
   animation: wash 1700ms ease-out both;
+}
+/* Véu "água": usa a cor média da cena seguinte para a passagem ser contínua. */
+.wash[data-tint] {
+  background: radial-gradient(
+    circle at var(--ox, 50%) 58%,
+    color-mix(in srgb, var(--tint) 35%, #fff) 0,
+    var(--tint) 55%,
+    color-mix(in srgb, var(--tint) 75%, #1f6fa8) 100%
+  );
 }
 .wash {
   position: absolute;

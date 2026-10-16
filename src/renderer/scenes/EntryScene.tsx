@@ -34,9 +34,12 @@ export function EntryScene({ scene, mainId }: { scene: EntryModel; mainId: strin
     const root = document.documentElement;
     const main = document.getElementById(mainId);
     root.dataset.cvGate = covering ? "closed" : "open";
+    // closed | opening | open: as cenas seguintes sincronizam a chegada com o mergulho.
+    root.dataset.cvPhase = state;
     main?.toggleAttribute("inert", covering);
     return () => {
       delete root.dataset.cvGate;
+      delete root.dataset.cvPhase;
       main?.removeAttribute("inert");
     };
   }, [state, mainId]);
@@ -109,6 +112,7 @@ export function EntryScene({ scene, mainId }: { scene: EntryModel; mainId: strin
           art={art}
           state={state}
           reducedMotion={reducedMotion}
+          tint={scene.transitionTint}
           ctaLabel={scene.ctaLabel}
           tag={scene.tag}
           motif={scene.motif}

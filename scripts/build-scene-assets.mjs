@@ -35,7 +35,27 @@ const SCENES = {
     ["perola-a", "perolas/uma-perola-01.png", "sprite"],
     ["perola-b", "perolas/uma-perola-07.png", "sprite"],
   ],
+  "maite-1-ano/scene-02": [
+    // Fundo submarino e sprites de profundidade (sem a criança). Bolhas: reutilizam as da cena 01.
+    ["bg-mar", "backgrounds/fundo-do-mar-cenário-principal.png", "background"],
+    ["alga-ondulada", "plantas/alga-marinha-ondulada-01.png", "sprite"],
+    ["alga-verde", "plantas/alga-marinha-verde-01.png", "sprite"],
+    ["coral-azul", "corais/coral-azul-ramificado-com-perolas-01.png", "sprite"],
+    ["coral-leque", "corais/coral-roxo-em-leque-com-perolas-01.png", "sprite"],
+    ["estrela-rosa", "estrelas-do-mar/estrela-do-mar-rosa-com-perolas-01.png", "sprite"],
+    ["cordao-espiral", "perolas/cordao-de-perolas-espiral-01.png", "sprite"],
+    ["conchas-corais", "decorativos/arranjo-de-conchas-corais-e-perolas-01.png", "sprite"],
+    // v2: plantas que balançam (mais variedade de silhueta e cor).
+    ["alga-rosa", "plantas/alga-marinha-rosa-01.png", "sprite"],
+    ["alga-turquesa", "plantas/alga-marinha-turquesa-01.png", "sprite"],
+    ["folha-rosa", "plantas/folhagem-marinha-delicada-01.png", "sprite"],
+    ["folha-roxa", "plantas/folhagem-marinha-ramificada-01.png", "sprite"],
+  ],
+  // PRIVADO: contém a criança. Sai em assets/_prepared/ (ignorado pelo Git), nunca em public/.
+  // Só vai para public/ depois da autorização da família (ver docs/SCENE_02_V2.md).
+  "maite-1-ano/scene-03-private": [["maite-cavalo-marinho", "maite/maite-cavalo-marinho.png", "sprite"]],
 };
+const PRIVATE_TARGETS = new Set(["maite-1-ano/scene-03-private"]);
 
 const target = process.argv[2] ?? "maite-1-ano/scene-01";
 const list = SCENES[target];
@@ -44,7 +64,9 @@ if (!list) {
   process.exit(1);
 }
 
-const outDir = join(root, "public", "events", ...target.split("/"));
+const outDir = PRIVATE_TARGETS.has(target)
+  ? join(root, "assets", "_prepared", ...target.split("/"))
+  : join(root, "public", "events", ...target.split("/"));
 mkdirSync(outDir, { recursive: true });
 
 const kb = (path) => (statSync(path).size / 1024).toFixed(0);

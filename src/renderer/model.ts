@@ -99,7 +99,16 @@ export interface EntryArt {
   decor: ResolvedDecor[];
 }
 
+/** Palco em camadas já resolvido (cena "stage"). Só existe com o fundo pronto. */
+export interface StageArt {
+  background: ReadyImage;
+  decor: ResolvedDecor[];
+  /** Camada atmosférica em canvas: sprites de microbolhas (vazio = desenhadas) + densidades. */
+  canvas: { sprites: ReadyImage[]; density: number; motes: number } | null;
+}
+
 type EntryConfigScene = Extract<Scene, { kind: "entry" }>;
+type StageConfigScene = Extract<Scene, { kind: "stage" }>;
 
 export type ResolvedScene =
   | ResolvedContentScene
@@ -107,6 +116,7 @@ export type ResolvedScene =
       background: ResolvedAsset | null;
       art: EntryArt | null;
     })
+  | (Omit<StageConfigScene, "background" | "decor" | "canvas"> & { art: StageArt | null })
   | (Omit<Extract<Scene, { kind: "reveal" }>, "children"> & { children: ResolvedContentScene[] });
 
 export interface LifecycleInfo {
@@ -255,6 +265,31 @@ function resolveEntryArt(
   };
 }
 
+function resolveStageArt(
+  event: EventConfig,
+  backgroundId: string,
+  decor: DecorItem[],
+  canvas: StageConfigScene["canvas"],
+): StageArt | null {
+  const ready = (id: string): ReadyImage | null => {
+    const asset = resolveAsset(event, id, "public");
+    return asset.ready && asset.kind === "image" ? asset : null;
+  };
+  const background = ready(backgroundId);
+  if (!background) return null;
+  return {
+    background,
+    decor: decor.flatMap((item): ResolvedDecor[] => {
+      const { asset, ...rest } = item;
+      const image = ready(asset);
+      return image ? [{ ...rest, image }] : [];
+    }),
+    canvas: canvas
+      ? { sprites: canvas.sprites.flatMap((id) => ready(id) ?? []), density: canvas.density, motes: canvas.motes }
+      : null,
+  };
+}
+
 function findGiftsSceneId(scenes: (Scene | ContentScene)[]): string | null {
   for (const scene of scenes) {
     if (scene.kind === "gifts") return scene.id;
@@ -329,6 +364,10 @@ export function resolveExperience(event: EventConfig, mode: RenderMode): Experie
           background: scene.background ? resolveAsset(event, scene.background, mode) : null,
           art: resolveEntryArt(event, scene.background, { motifAsset, openAsset, tagAsset }, scene, decor),
         };
+      }
+      case "stage": {
+        const { background, decor, canvas, ...stage } = scene;
+        return { ...stage, art: resolveStageArt(event, background, decor, canvas) };
       }
       case "reveal":
         return { ...scene, children: scene.children.map(resolveContent) };

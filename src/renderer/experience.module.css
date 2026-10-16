@@ -94,3 +94,26 @@
 .previewPanel code {
   color: #b9e0ff;
 }
+
+.fxSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.4rem 0;
+}
+.fxSwitch button {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #5a5666;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.fxSwitch button[aria-pressed="true"] {
+  background: #f3c37a;
+  border-color: #f3c37a;
+  color: #2a1a00;
+  font-weight: 700;
+}

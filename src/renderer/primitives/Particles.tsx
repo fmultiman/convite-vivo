@@ -26,7 +26,6 @@ export function Particles({ kind, count = 16 }: { kind: Theme["particles"]; coun
               "--size": `${Math.round(6 + seeded(i, 2) * 22)}px`,
               "--duration": `${Math.round(9 + seeded(i, 3) * 12)}s`,
               "--delay": `${-Math.round(seeded(i, 4) * 20)}s`,
-              "--drift": `${Math.round(seeded(i, 5) * 40 - 20)}px`,
             } as CSSProperties
           }
         />

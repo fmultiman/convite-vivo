@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { eventConfigSchema } from "@/contract/event.schema";
 import { buildWhatsAppUrl, isSafeExternalUrl } from "@/contract/safe-url";
-import { rawDemo, rawMaite } from "./helpers";
+import { rawDemo, rawMaite, sceneOf } from "./helpers";
 
 function issuesOf(raw: unknown): string[] {
   const result = eventConfigSchema.safeParse(raw);
@@ -57,8 +57,8 @@ describe("contrato de evento", () => {
 
   it("exige que referências de cena apontem para assets e ações existentes", () => {
     const raw = rawMaite();
-    raw.scenes[1].asset = "nao-existe";
-    raw.scenes[3].children[2].actions.push("acao-fantasma");
+    sceneOf(raw, "chegada").asset = "nao-existe";
+    sceneOf(raw, "concha").children[2].actions.push("acao-fantasma");
     const issues = issuesOf(raw);
     expect(issues.some((i) => i.includes('asset "nao-existe" não existe'))).toBe(true);
     expect(issues.some((i) => i.includes('ação "acao-fantasma" não existe'))).toBe(true);
@@ -66,13 +66,13 @@ describe("contrato de evento", () => {
 
   it("exige o tipo correto de asset para cada cena", () => {
     const raw = rawMaite();
-    raw.scenes[1].asset = "teaser"; // cena de imagem apontando para vídeo
+    sceneOf(raw, "chegada").asset = "teaser"; // cena de imagem apontando para vídeo
     expect(issuesOf(raw).some((i) => i.includes("deveria ser image"))).toBe(true);
   });
 
   it("rejeita ids de cena duplicados, inclusive dentro de revelações", () => {
     const raw = rawMaite();
-    raw.scenes[3].children[0].id = "chegada";
+    sceneOf(raw, "concha").children[0].id = "chegada";
     expect(issuesOf(raw).some((i) => i.includes('id de cena duplicado "chegada"'))).toBe(true);
   });
 

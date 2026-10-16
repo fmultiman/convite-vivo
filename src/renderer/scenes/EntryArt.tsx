@@ -115,6 +115,7 @@ export function EntryArt({
   art,
   state,
   reducedMotion,
+  tint,
   ctaLabel,
   tag,
   motif,
@@ -125,6 +126,8 @@ export function EntryArt({
   art: EntryArtModel;
   state: GateState;
   reducedMotion: boolean;
+  /** Cor do véu do mergulho (cor média da cena seguinte). */
+  tint?: string;
   ctaLabel: string;
   tag?: string;
   motif: MotifName;
@@ -175,6 +178,7 @@ export function EntryArt({
     "--aspect-n": background.width / background.height,
     "--ox": `${mp.x}%`,
     "--oy": `${mp.y}%`,
+    "--tint": tint,
   } as CSSProperties;
   const motifStyle = {
     "--x": mp.x,
@@ -266,7 +270,7 @@ export function EntryArt({
         </div>
       </div>
 
-      <div className={styles.wash} aria-hidden="true" />
+      <div className={styles.wash} data-tint={tint ? "" : undefined} aria-hidden="true" />
     </div>
   );
 }

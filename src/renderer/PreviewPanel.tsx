@@ -1,4 +1,5 @@
 import type { ExperienceModel } from "./model";
+import { FxSwitch } from "./client/FxSwitch";
 import styles from "./experience.module.css";
 
 const statusLabel: Record<ExperienceModel["event"]["status"], string> = {
@@ -20,6 +21,7 @@ export function PreviewPanel({ model }: { model: ExperienceModel }) {
         {blockers.length ? ` · ${blockers.length} bloqueio(s)` : " · pronto para publicar"}
       </summary>
       <p>Esta página não é pública nem indexável. Itens “a confirmar” não aparecem na versão publicada.</p>
+      {model.scenes.some((s) => s.kind === "stage" && s.art?.canvas) ? <FxSwitch /> : null}
       {blockers.length ? (
         <>
           <h2>Impedem a publicação</h2>
