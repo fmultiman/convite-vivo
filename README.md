@@ -80,6 +80,7 @@ não referencia eventos específicos.
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — decisões técnicas e porquês
 - [docs/ASSETS.md](docs/ASSETS.md) — como integrar os assets reais da Maitê
+- [docs/MAITE_ASSET_INTEGRATION.md](docs/MAITE_ASSET_INTEGRATION.md) — inventário, curadoria e plano de integração da biblioteca visual
 - [docs/LACUNAS.md](docs/LACUNAS.md) — pendências, limitações e próximos passos
 
 Deploy: preparado para Vercel, **não realizado** (requer aprovação explícita).

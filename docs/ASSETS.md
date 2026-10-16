@@ -1,5 +1,7 @@
 # Integração dos assets da Maitê
 
+> **Atualização 15/10/2026:** a biblioteca visual real da Maitê já existe em `assets/` (fora do git). Os ids de assets abaixo (`kf01…`) eram provisórios; inventário, seleção, mapa por cena e estratégia de otimização estão em [MAITE_ASSET_INTEGRATION.md](MAITE_ASSET_INTEGRATION.md) e `MAITE_ASSET_MANIFEST.json` (inventário mantido localmente, fora do Git). As regras de privacidade abaixo continuam valendo.
+
 Todos os assets da Maitê estão declarados em `content/events/maite-1-ano.json`
 com `status: "pending"`. Enquanto pendentes, o renderer mostra placeholders
 (com rótulo só na prévia). **Nenhuma imagem da criança foi gerada, copiada ou
