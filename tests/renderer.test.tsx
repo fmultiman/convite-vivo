@@ -82,3 +82,30 @@ describe("EventExperience (renderer único)", () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe("EventExperience — entrada em camadas", () => {
+  it("a Maitê renderiza fundo, envelope em imagem, decoração decorativa e texto real", () => {
+    const html = renderToStaticMarkup(
+      <EventExperience model={resolveExperience(events.getEventForPreview("maite-1-ano")!, "preview")} />,
+    );
+    expect(html).toContain("data-art");
+    expect(html).toContain("/events/maite-1-ano/scene-01/bg-praia.webp");
+    expect(html).toContain("/events/maite-1-ano/scene-01/env-fechado.webp");
+    // O texto crítico e o botão são HTML real; as imagens de camada são decorativas.
+    expect(html).toContain("Abrir o envelope");
+    expect(html).toContain("Uma pequena aventura está prestes a começar");
+    expect(html).toMatch(/<button[^>]*aria-describedby="praia-title"/);
+    const layerImgs = html.match(/<img[^>]*>/g)?.filter((tag) => tag.includes("/scene-01/")) ?? [];
+    expect(layerImgs.length).toBeGreaterThan(0);
+    for (const tag of layerImgs) {
+      expect(tag).toContain('alt=""');
+      expect(tag).toContain('aria-hidden="true"');
+    }
+  });
+
+  it("o evento Clara & Davi continua usando o layout simples (sem arte em camadas)", () => {
+    const html = render("demo-clara-e-davi", "public");
+    expect(html).not.toContain("data-art");
+    expect(html).toContain('data-motif="seal"');
+  });
+});

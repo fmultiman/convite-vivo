@@ -214,3 +214,80 @@
     animation: none;
   }
 }
+
+/* ---------- Entrada em camadas (data-art): texto sobre a arte ---------- */
+.gate[data-art] {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+}
+/* Precisa vencer o display:block acima: sem isso a entrada não some ao abrir. */
+.gate[data-art][hidden] {
+  display: none;
+}
+/* Névoa clara no topo: mantém o texto legível sobre o céu. */
+.gate[data-art]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: 46%;
+  background: linear-gradient(180deg, rgb(255 247 252 / 0.86) 0%, rgb(255 247 252 / 0.55) 40%, rgb(255 247 252 / 0));
+  pointer-events: none;
+}
+.gate[data-art] .inner {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 4;
+  justify-content: flex-start;
+  max-width: none;
+  gap: 0.5rem;
+  margin-inline: auto;
+  padding: calc(1.6rem + env(safe-area-inset-top)) 1.5rem 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+.gate[data-art] .inner > * {
+  max-width: 28rem;
+}
+.gate[data-art] .eyebrow {
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.7);
+}
+.gate[data-art] .headline {
+  margin: 0;
+  font-size: clamp(1.7rem, 7.4vw, 2.6rem);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.75);
+}
+.gate[data-art] .body {
+  color: var(--cv-text);
+  font-size: 1rem;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.7);
+}
+.gate[data-art] .noscriptLink {
+  position: fixed;
+  left: 50%;
+  bottom: 2rem;
+  translate: -50% 0;
+  pointer-events: auto;
+}
+.gate[data-state="opening"][data-art] {
+  animation: gate-out-art 1700ms linear forwards;
+  pointer-events: auto; /* um toque durante a abertura pula a transição */
+}
+.gate[data-state="opening"][data-art] .inner {
+  opacity: 0;
+}
+@keyframes gate-out-art {
+  0%,
+  74% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gate[data-state="opening"][data-art] {
+    animation: none;
+  }
+}

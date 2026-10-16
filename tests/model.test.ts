@@ -29,7 +29,7 @@ describe("modelo de experiência", () => {
 
   it("prévia mostra candidatos marcados como pendentes", () => {
     const model = resolveExperience(parsed(rawMaite()), "preview");
-    expect(model.details.time).toEqual(expect.objectContaining({ state: "pending", candidate: "13h" }));
+    expect(model.details.time).toEqual(expect.objectContaining({ state: "pending", candidate: null }));
     expect(model.issues.some((i) => i.severity === "blocker")).toBe(true);
     const reveal = model.scenes.find((s) => s.kind === "reveal");
     const actions = reveal?.kind === "reveal" ? reveal.children.find((c) => c.kind === "actions") : undefined;

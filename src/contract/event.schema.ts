@@ -260,6 +260,35 @@ export const contentSceneSchema = z.discriminatedUnion("kind", [
   messageScene,
 ]);
 
+/**
+ * Posição de uma camada no "palco": a caixa da arte de fundo, que acompanha a
+ * imagem em qualquer tela. x/y = centro, em % do palco; width em % da largura.
+ */
+export const placementSchema = z.object({
+  x: z.number().min(-10).max(110),
+  y: z.number().min(-10).max(110),
+  width: z.number().min(1).max(100),
+  /** Rotação no plano da imagem, em graus. */
+  rotate: z.number().min(-180).max(180).default(0),
+  /** Inclinação para "deitar" o objeto no chão (perspectiva), em graus. */
+  tilt: z.number().min(0).max(60).default(0),
+});
+
+/** Camada decorativa sobre a arte de fundo (concha, pérola, bolha...). */
+export const decorItemSchema = placementSchema.extend({
+  asset: idSchema,
+  /** Profundidade: controla parallax e desfoque de campo. */
+  plane: z.enum(["far", "mid", "near"]).default("mid"),
+  motion: z.enum(["none", "float", "sway", "rise", "twinkle"]).default("none"),
+  /** Sombra de contato (objeto apoiado no chão). */
+  shadow: z.boolean().default(false),
+  flip: z.boolean().default(false),
+  /** Atraso da animação, em segundos. */
+  delay: z.number().min(0).max(20).default(0),
+  /** "onOpen": só aparece quando a entrada é aberta (ex.: bolhas liberadas). */
+  appear: z.enum(["always", "onOpen"]).default("always"),
+});
+
 const entryScene = z.object({
   kind: z.literal("entry"),
   ...sceneBase,
@@ -271,6 +300,14 @@ const entryScene = z.object({
   ctaLabel: z.string().min(1).max(40),
   motif: z.enum(motifs),
   background: idSchema.optional(),
+  /** Imagem do motivo (fechado) e do estado aberto: substituem o SVG genérico. */
+  motifAsset: idSchema.optional(),
+  openAsset: idSchema.optional(),
+  /** Placa de fundo para a etiqueta (o texto continua sendo HTML). */
+  tagAsset: idSchema.optional(),
+  motifPlacement: placementSchema.optional(),
+  tagPlacement: placementSchema.optional(),
+  decor: z.array(decorItemSchema).default([]),
   /** Transição ao entrar. Com reduced motion vira um fade curto. */
   transition: z.enum(["bubbles", "sparkles", "fade"]),
 });
@@ -427,6 +464,11 @@ export const eventConfigSchema = z
       switch (scene.kind) {
         case "entry":
           if (scene.background) requireAsset(scene.background, "image", [...path, "background"]);
+          for (const key of ["motifAsset", "openAsset", "tagAsset"] as const) {
+            const id = scene[key];
+            if (id) requireAsset(id, "image", [...path, key]);
+          }
+          scene.decor.forEach((item, i) => requireAsset(item.asset, "image", [...path, "decor", i, "asset"]));
           break;
         case "image":
           requireAsset(scene.asset, "image", [...path, "asset"]);
@@ -491,5 +533,7 @@ export type EventAction = z.output<typeof actionSchema>;
 export type Theme = z.output<typeof themeSchema>;
 export type FontKey = (typeof fontKeys)[number];
 export type Motif = (typeof motifs)[number];
+export type Placement = z.output<typeof placementSchema>;
+export type DecorItem = z.output<typeof decorItemSchema>;
 export type EditorialStatus = (typeof editorialStatuses)[number];
 export type Phase = (typeof phases)[number];

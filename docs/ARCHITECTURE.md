@@ -48,6 +48,8 @@ a política "nada provisório no público" fica em um único lugar testável
 | R-16 | Links externos: somente `https://` sem credenciais (validado no contrato), `target=_blank rel="noopener noreferrer"` | Requisito "links externos seguros". |
 | R-17 | Assets públicos só em `/events/<slug>/` do próprio evento; originais e privados nunca entram no repositório | Separação público/privado (doc 03 §7). |
 | R-18 | `instant = false` nas rotas de evento | Validação de navegação instantânea do Cache Components; convites são abertos por link direto. |
+| R-19 | Entrada em camadas: `entry` aceita fundo + `motifAsset/openAsset/tagAsset` + `decor[]` posicionados em % do palco | Arte registrada à imagem em qualquer tela; todos os campos opcionais e retrocompatíveis; sem engine de animação (CSS). |
+| R-20 | Derivados web por cena via `npm run assets:scene-01` (sharp), servidos estáticos | Reprodutível, só os arquivos listados, originais intactos, nenhum arquivo da criança em `public/`. |
 
 ## O que deliberadamente NÃO foi feito
 

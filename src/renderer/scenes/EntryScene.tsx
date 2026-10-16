@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { ResolvedScene } from "../model";
 import { AssetImage } from "../primitives/AssetImage";
 import { Motif } from "../primitives/Motif";
+import { EntryArt } from "./EntryArt";
 import { EXPERIENCE_EVENTS, usePrefersReducedMotion } from "../client/hooks";
 import styles from "./entry.module.css";
 
@@ -11,6 +12,10 @@ type EntryModel = Extract<ResolvedScene, { kind: "entry" }>;
 type GateState = "closed" | "opening" | "open";
 
 const TRANSITION_MS = 1600;
+/** A entrada em camadas tem a abertura do envelope + mergulho (ver entry-art.module.css). */
+const ART_TRANSITION_MS = 1700;
+/** Com reduced motion o estado aberto fica visível por um instante, sem movimento. */
+const ART_REDUCED_MS = 500;
 
 /**
  * Hero/Entry: primeira tela com o motivo (envelope, selo...) e a interação
@@ -49,32 +54,69 @@ export function EntryScene({ scene, mainId }: { scene: EntryModel; mainId: strin
     };
   }, []);
 
+  const art = scene.art;
+
   const finish = () => {
+    window.clearTimeout(timer.current);
     setState("open");
-    requestAnimationFrame(() => document.getElementById(mainId)?.focus({ preventScroll: true }));
+    // Remove o inert já (o efeito só roda depois da pintura) para o foco não falhar.
+    const main = document.getElementById(mainId);
+    main?.removeAttribute("inert");
+    requestAnimationFrame(() => main?.focus({ preventScroll: true }));
   };
 
   const enter = () => {
     if (state !== "closed") return;
     // Disparado de dentro do clique: conta como gesto do usuário para o áudio.
     window.dispatchEvent(new Event(EXPERIENCE_EVENTS.enter));
-    if (reducedMotion) {
+    if (reducedMotion && !art) {
       finish();
       return;
     }
     setState("opening");
-    timer.current = window.setTimeout(finish, TRANSITION_MS);
+    const duration = art ? (reducedMotion ? ART_REDUCED_MS : ART_TRANSITION_MS) : TRANSITION_MS;
+    timer.current = window.setTimeout(finish, duration);
   };
+
+  // A transição nunca prende o visitante: Escape/Enter/Espaço ou um toque a encerram.
+  useEffect(() => {
+    if (state !== "opening") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        finish();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
+  const titleId = `${scene.id}-title`;
 
   return (
     <section
       id={scene.id}
       className={styles.gate}
       data-state={state}
-      aria-labelledby={`${scene.id}-title`}
+      data-art={art ? "" : undefined}
+      aria-labelledby={titleId}
       hidden={state === "open"}
+      onClick={state === "opening" ? finish : undefined}
     >
-      {scene.background ? (
+      {art ? (
+        <EntryArt
+          art={art}
+          state={state}
+          reducedMotion={reducedMotion}
+          ctaLabel={scene.ctaLabel}
+          tag={scene.tag}
+          motif={scene.motif}
+          buttonRef={buttonRef}
+          onEnter={enter}
+          describedBy={titleId}
+        />
+      ) : scene.background ? (
         <div className={styles.background}>
           <AssetImage asset={scene.background} priority sizes="100vw" className={styles.backgroundMedia} />
         </div>
@@ -83,15 +125,17 @@ export function EntryScene({ scene, mainId }: { scene: EntryModel; mainId: strin
       <div className={styles.inner}>
         {scene.eyebrow ? <p className={styles.eyebrow}>{scene.eyebrow}</p> : null}
 
-        <button ref={buttonRef} type="button" className={styles.trigger} onClick={enter} aria-describedby={`${scene.id}-title`}>
-          <span className={styles.motifWrap}>
-            <Motif name={scene.motif} open={state !== "closed"} className={styles.motif} />
-            {scene.tag ? <span className={styles.tag}>{scene.tag}</span> : null}
-          </span>
-          <span className={styles.cta}>{scene.ctaLabel}</span>
-        </button>
+        {art ? null : (
+          <button ref={buttonRef} type="button" className={styles.trigger} onClick={enter} aria-describedby={titleId}>
+            <span className={styles.motifWrap}>
+              <Motif name={scene.motif} open={state !== "closed"} className={styles.motif} />
+              {scene.tag ? <span className={styles.tag}>{scene.tag}</span> : null}
+            </span>
+            <span className={styles.cta}>{scene.ctaLabel}</span>
+          </button>
+        )}
 
-        <h1 id={`${scene.id}-title`} className={styles.headline}>
+        <h1 id={titleId} className={styles.headline}>
           {scene.headline}
         </h1>
         {scene.body ? <p className={styles.body}>{scene.body}</p> : null}
@@ -103,7 +147,7 @@ export function EntryScene({ scene, mainId }: { scene: EntryModel; mainId: strin
         </noscript>
       </div>
 
-      {state === "opening" ? <TransitionLayer kind={scene.transition} /> : null}
+      {!art && state === "opening" ? <TransitionLayer kind={scene.transition} /> : null}
     </section>
   );
 }

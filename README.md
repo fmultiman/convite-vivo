@@ -32,8 +32,10 @@ npm run dev            # http://localhost:3000 (prévia de rascunhos ligada)
 | `npm run lint` | ESLint (config Next + a11y) |
 | `npm test` | Testes do contrato, regras, ciclo de vida, metadados e renderer |
 | `npm run build` | Build de produção (falha se alguma config for inválida) |
-| `npm run verify` | Todos os anteriores em sequência |
+| `npm run safety` | Trava para repositório público: mídia/pastas privadas, arquivos grandes, caminhos locais |
+| `npm run verify` | typecheck + lint + safety + testes + build |
 | `npm run schema` | Regenera `content/event.schema.json` a partir do contrato |
+| `npm run assets:scene-01` | Regenera os WebP da Cena 1 a partir de `assets/` (privado, fora do git). Os WebP resultantes **são versionados** |
 | `npm run smoke -- <url> [--preview]` | Smoke HTTP contra um servidor rodando (status, OG, headers) |
 
 Smoke de produção: `npm run build && npx next start -p 3100` e, em outro
@@ -82,5 +84,6 @@ não referencia eventos específicos.
 - [docs/ASSETS.md](docs/ASSETS.md) — como integrar os assets reais da Maitê
 - [docs/MAITE_ASSET_INTEGRATION.md](docs/MAITE_ASSET_INTEGRATION.md) — inventário, curadoria e plano de integração da biblioteca visual
 - [docs/LACUNAS.md](docs/LACUNAS.md) — pendências, limitações e próximos passos
+- [docs/PRIMEIRO_PUSH.md](docs/PRIMEIRO_PUSH.md) — checklist para publicar o repositório com segurança
 
 Deploy: preparado para Vercel, **não realizado** (requer aprovação explícita).

@@ -15,9 +15,9 @@
     "date": "2026-11-08",
     "timezone": "America/Sao_Paulo",
     "startTime": {
-      "value": "13:00",
+      "value": null,
       "confirmed": false,
-      "note": "Dado mais recente: 13h. O roteiro original (CENA 4) indica 12h. Confirmar com a família antes de publicar (A-013)."
+      "note": "Horário em validação com a família; só entra na página depois de confirmado."
     }
   },
   "venue": {
@@ -44,18 +44,14 @@
       "accentContrast": "#FFFFFF",
       "highlight": "#F2B3C6"
     },
-    "fonts": { "display": "fraunces", "body": "nunito" },
+    "fonts": {
+      "display": "fraunces",
+      "body": "nunito"
+    },
     "shape": "round",
     "particles": "bubbles"
   },
   "assets": {
-    "kf01-praia-envelope": {
-      "kind": "image",
-      "status": "pending",
-      "alt": "Praia encantada de areia clara com um envelope rosa, conchas e pérolas.",
-      "placeholderLabel": "Praia com envelope · KF-01",
-      "source": "Content Studio · KF-01"
-    },
     "kf03-maite-cavalo-marinho": {
       "kind": "image",
       "status": "pending",
@@ -93,6 +89,136 @@
       "alt": "Trilha instrumental suave de fundo do mar.",
       "placeholderLabel": "Trilha instrumental",
       "source": "Aniversário Maitê/music"
+    },
+    "bg-praia": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/bg-praia.webp",
+      "width": 941,
+      "height": 1672,
+      "alt": "Praia encantada ao pôr do sol, com areia clara, mar turquesa e conchas e pérolas nos cantos.",
+      "placeholderLabel": "BG01 · praia-encantada-abertura",
+      "source": "Biblioteca visual · BG01"
+    },
+    "env-fechado": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/env-fechado.webp",
+      "width": 564,
+      "height": 357,
+      "alt": "Envelope rosa fechado com selo de concha e pérolas.",
+      "placeholderLabel": "Envelope fechado",
+      "source": "Biblioteca visual · envelopes"
+    },
+    "env-aberto": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/env-aberto.webp",
+      "width": 508,
+      "height": 441,
+      "alt": "Envelope rosa aberto com brilho e bolhas.",
+      "placeholderLabel": "Envelope aberto",
+      "source": "Biblioteca visual · envelopes"
+    },
+    "placa-tag": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/placa-tag.webp",
+      "width": 724,
+      "height": 200,
+      "alt": "Placa arredondada com conchas, para a etiqueta.",
+      "placeholderLabel": "Placa da etiqueta",
+      "source": "Biblioteca visual · molduras"
+    },
+    "bolhas-trilha": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/bolhas-trilha.webp",
+      "width": 352,
+      "height": 354,
+      "alt": "Trilha de bolhas iridescentes.",
+      "placeholderLabel": "Trilha de bolhas",
+      "source": "Biblioteca visual · bolhas"
+    },
+    "bolhas-grupo": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/bolhas-grupo.webp",
+      "width": 241,
+      "height": 268,
+      "alt": "Grupo de bolhas iridescentes.",
+      "placeholderLabel": "Grupo de bolhas",
+      "source": "Biblioteca visual · bolhas"
+    },
+    "bolha-g": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/bolha-g.webp",
+      "width": 134,
+      "height": 142,
+      "alt": "Bolha iridescente grande.",
+      "placeholderLabel": "Bolha grande",
+      "source": "Biblioteca visual · bolhas"
+    },
+    "bolha-m": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/bolha-m.webp",
+      "width": 95,
+      "height": 98,
+      "alt": "Bolha iridescente média.",
+      "placeholderLabel": "Bolha média",
+      "source": "Biblioteca visual · bolhas"
+    },
+    "bolha-p": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/bolha-p.webp",
+      "width": 77,
+      "height": 77,
+      "alt": "Bolha iridescente pequena.",
+      "placeholderLabel": "Bolha pequena",
+      "source": "Biblioteca visual · bolhas"
+    },
+    "conchas-leque": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/conchas-leque.webp",
+      "width": 242,
+      "height": 173,
+      "alt": "Conchas em leque rosa com pérolas.",
+      "placeholderLabel": "Conchas com pérolas",
+      "source": "Biblioteca visual · conchas"
+    },
+    "cordao-perolas": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/cordao-perolas.webp",
+      "width": 287,
+      "height": 150,
+      "alt": "Cordão de pérolas curvado.",
+      "placeholderLabel": "Cordão de pérolas",
+      "source": "Biblioteca visual · pérolas"
+    },
+    "perola-a": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/perola-a.webp",
+      "width": 63,
+      "height": 64,
+      "alt": "Pérola.",
+      "placeholderLabel": "Pérola",
+      "source": "Biblioteca visual · pérolas"
+    },
+    "perola-b": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-01/perola-b.webp",
+      "width": 64,
+      "height": 72,
+      "alt": "Pérola rosada.",
+      "placeholderLabel": "Pérola rosada",
+      "source": "Biblioteca visual · pérolas"
     }
   },
   "scenes": [
@@ -105,8 +231,276 @@
       "tag": "Maitê — 1 aninho",
       "ctaLabel": "Abrir o envelope",
       "motif": "envelope",
-      "background": "kf01-praia-envelope",
-      "transition": "bubbles"
+      "background": "bg-praia",
+      "transition": "bubbles",
+      "motifAsset": "env-fechado",
+      "openAsset": "env-aberto",
+      "tagAsset": "placa-tag",
+      "motifPlacement": {
+        "x": 47,
+        "y": 55,
+        "width": 55,
+        "rotate": -6,
+        "tilt": 20
+      },
+      "tagPlacement": {
+        "x": 62,
+        "y": 82,
+        "width": 44,
+        "rotate": 2,
+        "tilt": 18
+      },
+      "decor": [
+        {
+          "asset": "bolha-p",
+          "x": 79,
+          "y": 37,
+          "width": 3.6,
+          "plane": "far",
+          "motion": "float",
+          "delay": 0.4
+        },
+        {
+          "asset": "bolha-m",
+          "x": 65,
+          "y": 40,
+          "width": 5,
+          "plane": "far",
+          "motion": "float",
+          "delay": 1.6
+        },
+        {
+          "asset": "conchas-leque",
+          "x": 81,
+          "y": 67,
+          "width": 25,
+          "plane": "mid",
+          "shadow": true,
+          "tilt": 8
+        },
+        {
+          "asset": "cordao-perolas",
+          "x": 28,
+          "y": 69,
+          "width": 24,
+          "plane": "mid",
+          "shadow": true,
+          "rotate": -14,
+          "tilt": 38,
+          "flip": true
+        },
+        {
+          "asset": "perola-a",
+          "x": 62,
+          "y": 69,
+          "width": 4.4,
+          "plane": "mid",
+          "shadow": true,
+          "motion": "twinkle",
+          "delay": 0.8
+        },
+        {
+          "asset": "perola-b",
+          "x": 21,
+          "y": 60,
+          "width": 4,
+          "plane": "mid",
+          "shadow": true,
+          "motion": "twinkle",
+          "delay": 2.0
+        },
+        {
+          "asset": "perola-a",
+          "x": 37,
+          "y": 51,
+          "width": 3.4,
+          "plane": "mid",
+          "shadow": true,
+          "motion": "twinkle",
+          "delay": 1.3
+        },
+        {
+          "asset": "bolha-g",
+          "x": 10,
+          "y": 46,
+          "width": 11,
+          "plane": "near",
+          "motion": "float",
+          "delay": 0.2
+        },
+        {
+          "asset": "bolha-m",
+          "x": 91,
+          "y": 73,
+          "width": 8,
+          "plane": "near",
+          "motion": "float",
+          "delay": 1.1
+        },
+        {
+          "asset": "bolha-p",
+          "x": 44,
+          "y": 51,
+          "width": 3.6,
+          "plane": "mid",
+          "motion": "rise",
+          "delay": 0
+        },
+        {
+          "asset": "bolha-m",
+          "x": 50,
+          "y": 50,
+          "width": 4.6,
+          "plane": "mid",
+          "motion": "rise",
+          "delay": 3.2
+        },
+        {
+          "asset": "bolha-p",
+          "x": 47,
+          "y": 52,
+          "width": 3,
+          "plane": "mid",
+          "motion": "rise",
+          "delay": 6.1
+        },
+        {
+          "asset": "bolhas-grupo",
+          "x": 46,
+          "y": 47,
+          "width": 26,
+          "appear": "onOpen",
+          "delay": 0.05
+        },
+        {
+          "asset": "bolhas-trilha",
+          "x": 62,
+          "y": 40,
+          "width": 40,
+          "appear": "onOpen",
+          "delay": 0.15
+        },
+        {
+          "asset": "bolha-g",
+          "x": 38,
+          "y": 51,
+          "width": 11,
+          "appear": "onOpen",
+          "delay": 0.1
+        },
+        {
+          "asset": "bolha-g",
+          "x": 58,
+          "y": 47,
+          "width": 10,
+          "appear": "onOpen",
+          "delay": 0.3
+        },
+        {
+          "asset": "bolha-g",
+          "x": 66,
+          "y": 51,
+          "width": 9,
+          "appear": "onOpen",
+          "delay": 0.55
+        },
+        {
+          "asset": "bolha-g",
+          "x": 30,
+          "y": 45,
+          "width": 8,
+          "appear": "onOpen",
+          "delay": 0.5
+        },
+        {
+          "asset": "bolha-m",
+          "x": 56,
+          "y": 46,
+          "width": 7,
+          "appear": "onOpen",
+          "delay": 0.25
+        },
+        {
+          "asset": "bolha-m",
+          "x": 33,
+          "y": 46,
+          "width": 6,
+          "appear": "onOpen",
+          "delay": 0.65
+        },
+        {
+          "asset": "bolha-m",
+          "x": 50,
+          "y": 42,
+          "width": 6.5,
+          "appear": "onOpen",
+          "delay": 0.4
+        },
+        {
+          "asset": "bolha-m",
+          "x": 70,
+          "y": 44,
+          "width": 6,
+          "appear": "onOpen",
+          "delay": 0.7
+        },
+        {
+          "asset": "bolha-m",
+          "x": 44,
+          "y": 40,
+          "width": 5.5,
+          "appear": "onOpen",
+          "delay": 0.8
+        },
+        {
+          "asset": "bolha-p",
+          "x": 50,
+          "y": 44,
+          "width": 4.4,
+          "appear": "onOpen",
+          "delay": 0.45
+        },
+        {
+          "asset": "bolha-p",
+          "x": 54,
+          "y": 52,
+          "width": 4,
+          "appear": "onOpen",
+          "delay": 0.75
+        },
+        {
+          "asset": "bolha-p",
+          "x": 40,
+          "y": 42,
+          "width": 3.6,
+          "appear": "onOpen",
+          "delay": 0.35
+        },
+        {
+          "asset": "bolha-p",
+          "x": 62,
+          "y": 46,
+          "width": 3.8,
+          "appear": "onOpen",
+          "delay": 0.6
+        },
+        {
+          "asset": "bolha-p",
+          "x": 47,
+          "y": 38,
+          "width": 3.4,
+          "appear": "onOpen",
+          "delay": 0.9
+        },
+        {
+          "asset": "bolha-p",
+          "x": 72,
+          "y": 38,
+          "width": 3.2,
+          "appear": "onOpen",
+          "delay": 0.5
+        }
+      ]
     },
     {
       "kind": "image",
@@ -133,10 +527,30 @@
       "eyebrow": "Lá no fundo, uma grande concha guarda um segredo",
       "headline": "Toque para revelar o convite",
       "children": [
-        { "kind": "details", "id": "convite", "eyebrow": "Maitê faz", "headline": "1 aninho" },
-        { "kind": "countdown", "id": "contagem" },
-        { "kind": "actions", "id": "acoes", "actions": ["confirmar", "mapa", "presentes"] },
-        { "kind": "gifts", "id": "presentes", "headline": "Sugestões de presente" }
+        {
+          "kind": "details",
+          "id": "convite",
+          "eyebrow": "Maitê faz",
+          "headline": "1 aninho"
+        },
+        {
+          "kind": "countdown",
+          "id": "contagem"
+        },
+        {
+          "kind": "actions",
+          "id": "acoes",
+          "actions": [
+            "confirmar",
+            "mapa",
+            "presentes"
+          ]
+        },
+        {
+          "kind": "gifts",
+          "id": "presentes",
+          "headline": "Sugestões de presente"
+        }
       ]
     },
     {
@@ -181,22 +595,38 @@
   "gifts": {
     "intro": "Se quiser presentear, aqui vão algumas ideias:",
     "items": [
-      { "text": "Roupa tamanho 1 ou 2", "confirmed": false },
-      { "text": "Calçado tamanho 20", "confirmed": false },
-      { "text": "Brinquedo", "confirmed": false }
+      {
+        "text": "Sugestão de presente 1 (texto a confirmar com a família)",
+        "confirmed": false
+      },
+      {
+        "text": "Sugestão de presente 2 (texto a confirmar com a família)",
+        "confirmed": false
+      },
+      {
+        "text": "Sugestão de presente 3 (texto a confirmar com a família)",
+        "confirmed": false
+      }
     ],
     "note": "Sua presença é o presente mais especial."
   },
-  "audio": { "asset": "trilha", "label": "Trilha do fundo do mar" },
+  "audio": {
+    "asset": "trilha",
+    "label": "Trilha do fundo do mar"
+  },
   "og": {
     "title": "Maitê faz 1 aninho!",
     "description": "Uma pequena aventura encantada no fundo do mar está prestes a começar. Toque para abrir o convite.",
     "image": "og-capa"
   },
-  "seo": { "indexable": false },
+  "seo": {
+    "indexable": false
+  },
   "lifecycle": {
     "phaseOverride": null,
-    "eventDay": { "message": "É hoje! Estamos esperando por você no fundo do mar." },
+    "eventDay": {
+      "message": "É hoje! Estamos esperando por você no fundo do mar."
+    },
     "postEvent": {
       "enabled": false,
       "headline": "Obrigada por fazer parte deste dia!",

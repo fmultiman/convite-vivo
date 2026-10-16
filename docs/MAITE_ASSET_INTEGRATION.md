@@ -349,3 +349,67 @@ escala e coerência; não representam implementação.
 Commit local `894eff1` (fundação do renderer, 76 arquivos, **0 imagens**).
 `.gitignore` agora cobre `/assets/`, `/private/`, `/raw/`, `/originals/`,
 `*.psd|kra|xcf` e vídeos/áudios na raiz. Sem push, sem remoto, sem deploy.
+
+## Cena 1 — implementação (16/10/2026)
+
+Praia + envelope + abertura, rodando no renderer existente. **Não commitada** (aguarda revisão).
+Capturas de revisão: `assets/_review/scene-01/` (ignorada pelo git).
+
+**Assets usados (13 derivados WebP, 537 KB no total; originais intactos):**
+`bg-praia` (BG01) · `env-fechado` · `env-aberto` · `placa-tag` · `bolhas-trilha` · `bolhas-grupo` ·
+`bolha-g/m/p` · `conchas-leque` · `cordao-perolas` · `perola-a/b`. Nenhuma imagem da criança.
+Gerados por `npm run assets:scene-01` (lê só esses 13 arquivos de `assets/`).
+
+**Decisão (muda a recomendação do §8):** derivados servidos como arquivos estáticos
+(`unoptimized`), em vez do otimizador do Next sobre masters. Motivo: sprites pequenos já
+otimizados, fundo em 941 px (sem variantes por largura), URLs imutáveis e nenhuma
+dependência do otimizador. AVIF fica como melhoria futura (~metade do peso).
+
+**Extensões mínimas do contrato** (todas opcionais, só na cena `entry`; Clara & Davi inalterado):
+`motifAsset`, `openAsset`, `tagAsset`, `motifPlacement`, `tagPlacement` e `decor[]`
+(`asset, x, y, width, rotate, tilt, plane, motion, shadow, flip, delay, appear`).
+Posições em % do **palco** (a caixa da arte de fundo), de modo que o envelope fica sobre a
+areia em qualquer tela. Sem `art` pronta (fundo pendente etc.), a entrada usa o layout simples.
+
+**Integração das camadas:** perspectiva (`tilt`) para o envelope "deitar" na areia; sombra de
+contato caindo para a esquerda (sol à direita); leve tinta quente nos recortes e gradação única
+por cima; planos `far/mid/near` com parallax e desfoque de campo no primeiro plano.
+
+**Movimento (só `transform`/`opacity`, sem biblioteca):** brilho do sol na água e pontos de luz;
+bolhas flutuando e subindo do envelope; pérolas cintilando; abertura (troca fechado→aberto com
+brilho, bolhas liberadas, zoom "mergulho", véu pastel) em 1,7 s; parallax só com mouse.
+
+**Acessibilidade e robustez:** botão real com `aria-describedby`; camadas `alt=""`/`aria-hidden`;
+foco visível; Enter/Espaço/clique; **Escape, Enter, Espaço ou um toque pulam a transição**; reduced
+motion mostra o envelope aberto estático por 0,5 s; falha de imagem esconde só aquela camada (envelope
+cai no vetor); camadas secundárias só baixam depois do fundo; sombras só aparecem após a imagem
+carregar; áudio nunca inicia sozinho (a cena não toca som).
+
+**Resultados medidos** (Chrome, build de produção local): cena inteira ~537 KB; botão utilizável
+a 1,8 s em ~700 kbps; ver `docs/LACUNAS.md` para limitações.
+
+### Cena 1 — revisão de movimento (16/10/2026)
+
+Revisão feita com o **movimento real** (gravação do Chrome em produção local, não só quadros
+estáticos). Mudanças pequenas, sem alterar a direção de arte:
+
+| Aspecto | Observado | Ajuste |
+| --- | --- | --- |
+| Protagonismo do envelope | pequeno frente às conchas dos cantos | largura 50% → 55% do palco |
+| Etiqueta | texto ~12 px, placa encostada em corais | placa 34% → 44% e reposicionada (texto ~15 px) |
+| Sombra de contato | elipse solta; envelope "flutuava" | sombra no **plano** do envelope (herda a perspectiva), `box-shadow` externo em 2 camadas, caindo à esquerda |
+| Ambiente em repouso | quase imperceptível (Δ luma 0,08/quadro) | "respiração" lenta da câmera (30 s, ≤ 4,5%), +4 pontos de luz, sol mais presente (Δ 0,25) |
+| Abertura | glow tímido | pico do brilho maior; texto/botão saem primeiro |
+| Bolhas | 8 liberadas, saíam rápido | 17 liberadas em leque, mais visíveis (até 72% da trajetória) e mais altas |
+| Mergulho | véu cedo demais e longo trecho quase branco | zoom 1,32 → 1,4, véu entre 32% e 80%, fade da entrada a partir de 74% |
+| Bug encontrado na gravação | retângulo escuro na troca fechado→aberto | corrigido (sombra externa nunca é pintada sob o envelope) |
+
+Artefatos de revisão (pasta ignorada pelo git): `assets/_review/scene-01/{antes,depois,video}/`.
+
+### Derivados e reprodutibilidade
+
+`assets/` (biblioteca bruta) é privado e **não vai para o GitHub**. Por isso os 13 WebP de
+`public/events/maite-1-ano/scene-01/` (537 KB, sem a criança) **são versionados**; `npm run assets:scene-01`
+só roda onde existe a biblioteca bruta e serve para regenerá-los. O build/deploy usa apenas os WebP
+commitados. `npm run safety` (parte do `verify`) barra PNG/JPG/PDF/vídeo, pastas `assets|private|raw`,
+arquivos > 1,5 MB, caminhos locais e telefones em `content/` e `docs/`.

@@ -30,7 +30,11 @@ function hasScene(scenes: (Scene | ContentScene)[], kind: Scene["kind"]): boolea
 export function referencedAssetIds(event: EventConfig): Set<string> {
   const ids = new Set<string>();
   const visit = (scene: Scene | ContentScene) => {
-    if (scene.kind === "entry" && scene.background) ids.add(scene.background);
+    if (scene.kind === "entry") {
+      if (scene.background) ids.add(scene.background);
+      for (const id of [scene.motifAsset, scene.openAsset, scene.tagAsset]) if (id) ids.add(id);
+      scene.decor.forEach((item) => ids.add(item.asset));
+    }
     if (scene.kind === "image" || scene.kind === "video") ids.add(scene.asset);
     if (scene.kind === "reveal") scene.children.forEach(visit);
   };

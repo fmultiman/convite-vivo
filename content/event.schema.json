@@ -543,6 +543,180 @@
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
               },
+              "motifAsset": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "openAsset": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "tagAsset": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "motifPlacement": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": -10,
+                    "maximum": 110
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": -10,
+                    "maximum": 110
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "rotate": {
+                    "default": 0,
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "tilt": {
+                    "default": 0,
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 60
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width"
+                ]
+              },
+              "tagPlacement": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": -10,
+                    "maximum": 110
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": -10,
+                    "maximum": 110
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "rotate": {
+                    "default": 0,
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "tilt": {
+                    "default": 0,
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 60
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width"
+                ]
+              },
+              "decor": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "x": {
+                      "type": "number",
+                      "minimum": -10,
+                      "maximum": 110
+                    },
+                    "y": {
+                      "type": "number",
+                      "minimum": -10,
+                      "maximum": 110
+                    },
+                    "width": {
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "rotate": {
+                      "default": 0,
+                      "type": "number",
+                      "minimum": -180,
+                      "maximum": 180
+                    },
+                    "tilt": {
+                      "default": 0,
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 60
+                    },
+                    "asset": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9-]*$"
+                    },
+                    "plane": {
+                      "default": "mid",
+                      "type": "string",
+                      "enum": [
+                        "far",
+                        "mid",
+                        "near"
+                      ]
+                    },
+                    "motion": {
+                      "default": "none",
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "float",
+                        "sway",
+                        "rise",
+                        "twinkle"
+                      ]
+                    },
+                    "shadow": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "flip": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "delay": {
+                      "default": 0,
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 20
+                    },
+                    "appear": {
+                      "default": "always",
+                      "type": "string",
+                      "enum": [
+                        "always",
+                        "onOpen"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y",
+                    "width",
+                    "asset"
+                  ]
+                }
+              },
               "transition": {
                 "type": "string",
                 "enum": [

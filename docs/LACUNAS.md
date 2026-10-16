@@ -52,3 +52,18 @@ imagem gerada); trilha não escolhida.
 
 Os documentos foram lidos a partir das cópias .docx em
 `../docs/google drive`. Nenhuma lacuna de acesso.
+
+## Cena 1 da Maitê — limitações observadas (16/10/2026)
+
+- **Dev server (Turbopack) em loop de recompilação** neste ambiente (Windows, disco D:, "slow filesystem"):
+  a página nunca estabiliza com o navegador aberto. A revisão foi feita com `next build` + `next start`.
+  Não investigado a fundo; não afeta produção.
+- **Revisão em aparelhos reais pendente** (iOS Safari/Android): `dvh`, `aspect-ratio`, `translate`, `:has()` e
+  `container queries` foram usados; validar. Parallax por giroscópio não implementado (de propósito).
+- **Mergulho sem fundo submarino:** a transição termina em um véu pastel que se funde à próxima cena (ainda
+  sem BG02). A próxima cena atual é a de placeholders (Maitê pendente).
+- **Sem concha fechada/peixes** (ver §7); a Cena 1 não precisa deles.
+- **Telas largas:** coluna central de ~560 px com laterais desfocadas; sem versão larga da arte.
+- **Camadas sem sombra baked:** sombras de contato são aproximações CSS (elipses); revisar o realismo em aparelhos.
+- **Envelope falha de imagem:** cai no vetor genérico (estilo diferente, intencional como último recurso).
+- A prévia do rascunho continua exigindo `ENABLE_DRAFT_PREVIEW=true` **no build e no start** em produção local.

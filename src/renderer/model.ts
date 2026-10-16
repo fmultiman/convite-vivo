@@ -12,9 +12,11 @@
 import type {
   Asset,
   ContentScene,
+  DecorItem,
   EventAction,
   EventConfig,
   Phase,
+  Placement,
   Scene,
   Theme,
 } from "../contract/event.schema";
@@ -79,9 +81,32 @@ type ResolvedContentSceneOf<S> = S extends { kind: "image" | "video" }
 
 export type ResolvedContentScene = ResolvedContentSceneOf<ContentScene>;
 
+/** Camada decorativa já resolvida: só entram imagens prontas (aprovadas). */
+export type ResolvedDecor = Omit<DecorItem, "asset"> & { image: ReadyImage };
+
+/**
+ * Arte da entrada em camadas (fundo + motivo em imagem + decoração). Só existe
+ * quando o fundo está pronto E há motivo em imagem ou decoração; caso
+ * contrário a entrada usa o layout simples (motivo SVG).
+ */
+export interface EntryArt {
+  background: ReadyImage;
+  motif: ReadyImage | null;
+  open: ReadyImage | null;
+  tag: ReadyImage | null;
+  motifPlacement: Placement;
+  tagPlacement: Placement;
+  decor: ResolvedDecor[];
+}
+
+type EntryConfigScene = Extract<Scene, { kind: "entry" }>;
+
 export type ResolvedScene =
   | ResolvedContentScene
-  | (Omit<Extract<Scene, { kind: "entry" }>, "background"> & { background: ResolvedAsset | null })
+  | (Omit<EntryConfigScene, "background" | "motifAsset" | "openAsset" | "tagAsset" | "decor"> & {
+      background: ResolvedAsset | null;
+      art: EntryArt | null;
+    })
   | (Omit<Extract<Scene, { kind: "reveal" }>, "children"> & { children: ResolvedContentScene[] });
 
 export interface LifecycleInfo {
@@ -196,6 +221,40 @@ function resolveAsset(event: EventConfig, id: string, mode: RenderMode): Resolve
   };
 }
 
+const DEFAULT_MOTIF_PLACEMENT: Placement = { x: 50, y: 58, width: 52, rotate: 0, tilt: 0 };
+const DEFAULT_TAG_PLACEMENT: Placement = { x: 50, y: 80, width: 40, rotate: 0, tilt: 0 };
+
+function resolveEntryArt(
+  event: EventConfig,
+  backgroundId: string | undefined,
+  ids: { motifAsset?: string; openAsset?: string; tagAsset?: string },
+  scene: EntryConfigScene,
+  decor: DecorItem[],
+): EntryArt | null {
+  const ready = (id: string | undefined): ReadyImage | null => {
+    if (!id) return null;
+    const asset = resolveAsset(event, id, "public");
+    return asset.ready && asset.kind === "image" ? asset : null;
+  };
+  const background = ready(backgroundId);
+  const motif = ready(ids.motifAsset);
+  const readyDecor = decor.flatMap((item): ResolvedDecor[] => {
+    const { asset, ...rest } = item;
+    const image = ready(asset);
+    return image ? [{ ...rest, image }] : [];
+  });
+  if (!background || (!motif && readyDecor.length === 0)) return null;
+  return {
+    background,
+    motif,
+    open: ready(ids.openAsset),
+    tag: ready(ids.tagAsset),
+    motifPlacement: scene.motifPlacement ?? DEFAULT_MOTIF_PLACEMENT,
+    tagPlacement: scene.tagPlacement ?? DEFAULT_TAG_PLACEMENT,
+    decor: readyDecor,
+  };
+}
+
 function findGiftsSceneId(scenes: (Scene | ContentScene)[]): string | null {
   for (const scene of scenes) {
     if (scene.kind === "gifts") return scene.id;
@@ -263,8 +322,14 @@ export function resolveExperience(event: EventConfig, mode: RenderMode): Experie
 
   const scenes = event.scenes.map((scene): ResolvedScene => {
     switch (scene.kind) {
-      case "entry":
-        return { ...scene, background: scene.background ? resolveAsset(event, scene.background, mode) : null };
+      case "entry": {
+        const { motifAsset, openAsset, tagAsset, decor, ...entry } = scene;
+        return {
+          ...entry,
+          background: scene.background ? resolveAsset(event, scene.background, mode) : null,
+          art: resolveEntryArt(event, scene.background, { motifAsset, openAsset, tagAsset }, scene, decor),
+        };
+      }
       case "reveal":
         return { ...scene, children: scene.children.map(resolveContent) };
       default:

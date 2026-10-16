@@ -1,0 +1,573 @@
+/*
+ * Entrada em camadas. Tudo é posicionado em % do "palco" (a caixa da arte de
+ * fundo, cover em celular e coluna central em telas largas), então os
+ * elementos ficam registrados à arte em qualquer tamanho de tela.
+ * Movimento: somente transform/opacity.
+ */
+.art {
+  --px: 0;
+  --py: 0;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* ---------- Palco ---------- */
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(calc(100vh * var(--aspect-n)), min(100vw, 560px));
+  width: max(calc(100dvh * var(--aspect-n)), min(100vw, 560px));
+  aspect-ratio: var(--aspect);
+  transform: translate(-50%, -50%);
+}
+/* Respiração lenta da câmera: empurra a composição inteira (fundo + camadas) juntas. */
+.camera {
+  position: absolute;
+  inset: 0;
+  transform-origin: 46% 62%;
+  animation: camera 30s ease-in-out infinite alternate;
+}
+.world {
+  position: absolute;
+  inset: 0;
+  transform-origin: var(--ox) var(--oy);
+}
+
+/* Telas largas: laterais preenchidas pelo mesmo fundo desfocado. */
+.fill {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+.fillImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.15);
+  filter: blur(26px) saturate(1.1) brightness(0.9);
+}
+@media (min-aspect-ratio: 7/10) {
+  .fill {
+    display: block;
+  }
+  .stage {
+    mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  }
+}
+
+/* ---------- Imagens de camada ---------- */
+.img {
+  display: block;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+:global(.js) .img:not([data-loaded]) {
+  opacity: 0;
+}
+.img[data-loaded] {
+  transition: opacity 400ms ease;
+}
+.img[data-failed] {
+  display: none;
+}
+.bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  scale: 1.02;
+  translate: calc(var(--px) * -3px) calc(var(--py) * -3px);
+}
+
+/* ---------- Ambiente: brilho do sol na água e pontos de luz ---------- */
+.sunPath {
+  position: absolute;
+  left: 60%;
+  top: 22%;
+  width: 24%;
+  height: 28%;
+  background: linear-gradient(to bottom, rgb(255 240 205 / 0.6), rgb(255 240 205 / 0));
+  filter: blur(10px);
+  mix-blend-mode: screen;
+  opacity: 0.7;
+  animation: breathe 6s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.glints {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.glint {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #fff, rgb(255 255 255 / 0));
+  box-shadow: 0 0 8px 2px rgb(255 255 255 / 0.7);
+  opacity: 0;
+  animation: glint 3.8s ease-in-out infinite;
+}
+
+/* ---------- Camadas decorativas ---------- */
+.item {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: calc(var(--w) * 1%);
+  transform: translate(-50%, -50%);
+  --depth: 10;
+  translate: calc(var(--px) * var(--depth) * -1px) calc(var(--py) * var(--depth) * -1px);
+  pointer-events: none;
+}
+.item[data-plane="far"] {
+  --depth: 5;
+  opacity: 0.92;
+}
+.item[data-plane="near"] {
+  --depth: 18;
+}
+.item[data-plane="near"] .img {
+  filter: blur(1.2px);
+}
+.body {
+  animation-delay: var(--delay);
+}
+.tilt {
+  transform: perspective(700px) rotateX(var(--tilt)) rotate(var(--rot)) scaleX(var(--flip));
+}
+.tilt .img {
+  width: 100%;
+  height: auto;
+  /* Luz quente do pôr do sol sobre os recortes. */
+  filter: saturate(1.04) sepia(0.06);
+}
+.item[data-plane="near"] .tilt .img {
+  filter: blur(1.2px) saturate(1.04) sepia(0.06);
+}
+
+/* Sombra de contato: cai para a esquerda e para baixo (sol no alto à direita). */
+.item[data-shadow]::before {
+  content: "";
+  position: absolute;
+  left: -2%;
+  right: 4%;
+  bottom: -4%;
+  height: 26%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(110 58 38 / 0.52), rgb(110 58 38 / 0));
+  filter: blur(2px);
+  transform: translate(-6%, 22%);
+}
+
+/* Movimentos ambientes (laço) */
+.body[data-motion="float"] {
+  animation: float 5.5s ease-in-out infinite alternate;
+}
+.body[data-motion="sway"] {
+  transform-origin: 50% 100%;
+  animation: sway 5.5s ease-in-out infinite alternate;
+}
+.body[data-motion="twinkle"] {
+  animation: twinkle 3.4s ease-in-out infinite alternate;
+}
+.body[data-motion="rise"] {
+  animation: rise 9s linear infinite;
+}
+
+/* Elementos liberados ao abrir: invisíveis até a abertura. */
+.item[data-appear="onOpen"] .body {
+  opacity: 0;
+}
+.art[data-state="opening"] .item[data-appear="onOpen"] .body {
+  animation: release var(--dur) cubic-bezier(0.2, 0.7, 0.3, 1) var(--delay) both;
+}
+
+/* ---------- Etiqueta (placa + texto HTML) ---------- */
+.tag {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: calc(var(--w) * 1%);
+  margin: 0;
+  container-type: inline-size;
+  transform: translate(-50%, -50%) perspective(700px) rotateX(var(--tilt)) rotate(var(--rot));
+  translate: calc(var(--px) * -10px) calc(var(--py) * -10px);
+  pointer-events: none;
+}
+.tag::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 6%;
+  bottom: -10%;
+  height: 28%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(120 66 44 / 0.4), rgb(120 66 44 / 0));
+  filter: blur(2px);
+  transform: translate(-6%, 20%);
+}
+.tagImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: saturate(1.04) sepia(0.06);
+}
+.tagText {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-inline: 14%;
+  color: var(--cv-text);
+  font-family: var(--cv-font-display);
+  font-size: clamp(11px, 7.4cqw, 22px);
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.7);
+  white-space: nowrap;
+}
+
+/* ---------- Motivo interativo (envelope) ---------- */
+.trigger {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: calc(var(--w) * 1%);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  outline: none;
+  transform: translate(-50%, -50%);
+  translate: calc(var(--px) * -14px) calc(var(--py) * -14px);
+  -webkit-tap-highlight-color: transparent;
+}
+/* Área de toque generosa, maior que o desenho. */
+.trigger::after {
+  content: "";
+  position: absolute;
+  inset: -22% -10% -60%;
+}
+.envStack {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--env-aspect);
+}
+/* Sombra "no chão": vive dentro de .envTilt, então herda a perspectiva do envelope.
+   Usa box-shadow EXTERNO numa caixa transparente: ele nunca é pintado sob o próprio
+   envelope (evita um retângulo escuro aparecendo na troca fechado→aberto).
+   Duas camadas: penumbra difusa + contato curto. Cai para a esquerda (sol à direita). */
+.shadow {
+  position: absolute;
+  inset: 12% 3% 2% 5%;
+  border-radius: 8px;
+  box-shadow:
+    -16px 14px 18px rgb(96 52 32 / 0.5),
+    -4px 5px 4px rgb(66 34 20 / 0.5);
+}
+.glow {
+  position: absolute;
+  inset: -30% -18%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 236 214 / 0.95), rgb(255 205 226 / 0.45) 50%, rgb(255 205 226 / 0));
+  opacity: 0.28;
+  animation: glow-idle 3.6s ease-in-out infinite alternate;
+}
+.envTilt {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform: perspective(900px) rotateX(var(--tilt)) rotate(var(--rot));
+  transform-origin: 50% 75%;
+  transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: rock 7s ease-in-out infinite alternate;
+}
+.envClosed,
+.envOpen {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  filter: saturate(1.05) sepia(0.05) drop-shadow(0 6px 10px rgb(120 66 44 / 0.28));
+}
+.envClosed {
+  width: 100%;
+  height: auto;
+}
+.envOpen {
+  width: var(--open-w);
+  height: auto;
+  opacity: 0 !important;
+}
+.fallbackMotif {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+/* Se a imagem do envelope falhar, aparece o desenho vetorial. */
+.envClosed[data-failed] ~ .fallbackMotif,
+.fallbackMotif[data-always] {
+  opacity: 1;
+}
+
+.pill {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 1.4rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.8rem 1.7rem;
+  border-radius: 999px;
+  background: var(--cv-accent);
+  color: var(--cv-accent-contrast);
+  box-shadow: 0 10px 24px -6px color-mix(in srgb, var(--cv-accent) 60%, transparent);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  transition: transform 200ms ease;
+}
+.trigger:hover .pill {
+  transform: translateX(-50%) translateY(-2px);
+}
+.trigger:hover .glow,
+.trigger:focus-visible .glow {
+  opacity: 0.7;
+}
+.trigger:focus-visible .pill {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 6px var(--cv-accent),
+    0 10px 24px -6px color-mix(in srgb, var(--cv-accent) 60%, transparent);
+}
+
+/* ---------- Abertura ---------- */
+.art[data-state="opening"] .trigger {
+  pointer-events: none;
+}
+.art[data-state="opening"] .pill {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+/* Sem a imagem aberta, o envelope fechado permanece. */
+.art[data-state="opening"] .trigger[data-has-open] .envClosed[data-loaded] {
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+.art[data-state="opening"] .trigger[data-has-open] .envOpen[data-loaded] {
+  opacity: 1 !important;
+  animation: lift 800ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.art[data-state="opening"] .envTilt {
+  transform: perspective(900px) rotateX(calc(var(--tilt) * 0.35)) rotate(calc(var(--rot) * 0.4));
+  animation: none;
+}
+.art[data-state="opening"] .glow {
+  animation: glow-burst 1000ms ease-out both;
+}
+.art[data-state="opening"] .world {
+  animation: dive 1700ms cubic-bezier(0.35, 0, 0.55, 1) both;
+}
+.art[data-state="opening"] .wash {
+  animation: wash 1700ms ease-out both;
+}
+.wash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(circle at var(--ox, 50%) 58%, #fff 0, var(--cv-backdrop-from) 45%, var(--cv-backdrop-to) 100%);
+  pointer-events: none;
+}
+
+/* Gradação única: luz quente e leve névoa rosada integram fundo e recortes. */
+.grade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 55% at 78% 14%, rgb(255 205 150 / 0.2), transparent 65%),
+    linear-gradient(to top, rgb(255 170 200 / 0.1), transparent 38%);
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes float {
+  to {
+    transform: translate3d(0, -1.4vh, 0);
+  }
+}
+@keyframes sway {
+  from {
+    transform: rotate(-2.8deg);
+  }
+  to {
+    transform: rotate(2.8deg);
+  }
+}
+@keyframes twinkle {
+  from {
+    opacity: 0.78;
+    transform: scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.7);
+  }
+  14% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(2vw, -22vh, 0) scale(1);
+  }
+}
+@keyframes release {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 5vh, 0) scale(0.45);
+  }
+  12% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift), -54vh, 0) scale(1.2);
+  }
+}
+@keyframes glint {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+}
+@keyframes breathe {
+  to {
+    opacity: 0.85;
+    transform: translateY(2%);
+  }
+}
+@keyframes glow-idle {
+  to {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+@keyframes glow-burst {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(1.9);
+  }
+}
+@keyframes rock {
+  from {
+    rotate: -0.7deg;
+  }
+  to {
+    rotate: 0.7deg;
+  }
+}
+@keyframes lift {
+  from {
+    transform: translate(0, 0) scale(0.96);
+  }
+  to {
+    transform: translate(0, -6%) scale(1.04);
+  }
+}
+@keyframes dive {
+  0%,
+  8% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.4);
+  }
+}
+@keyframes wash {
+  0%,
+  32% {
+    opacity: 0;
+  }
+  80%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes camera {
+  to {
+    transform: scale(1.045) translate(-0.6%, 0.4%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camera,
+  .sunPath,
+  .glint,
+  .glow,
+  .envTilt,
+  .body[data-motion] {
+    animation: none !important;
+  }
+  .glint {
+    opacity: 0.5;
+    transform: none;
+  }
+  .body[data-motion="rise"] {
+    opacity: 0;
+  }
+  .art[data-state="opening"] .world,
+  .art[data-state="opening"] .wash,
+  .art[data-state="opening"] .item[data-appear="onOpen"] .body,
+  .art[data-state="opening"] .envOpen {
+    animation: none !important;
+  }
+  .art[data-state="opening"] .glow {
+    opacity: 0.9;
+  }
+}
+
+/* Sombras só existem depois que o objeto carrega (evita manchas sem imagem). */
+:global(.js) .item[data-shadow]:not(:has(.img[data-loaded]))::before,
+:global(.js) .envStack:not(:has(.envClosed[data-loaded])) .shadow,
+:global(.js) .tag:not(:has(.tagImg[data-loaded]))::before {
+  opacity: 0;
+}
+.item[data-shadow]::before,
+.shadow,
+.tag::before {
+  transition: opacity 500ms ease;
+}
