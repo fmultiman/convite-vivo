@@ -1,0 +1,51 @@
+.audioToggle {
+  position: fixed;
+  z-index: 60;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  right: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid color-mix(in srgb, var(--cv-accent) 45%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--cv-surface) 85%, transparent);
+  color: var(--cv-text);
+  backdrop-filter: blur(8px);
+  font-size: 1rem;
+  cursor: pointer;
+}
+.audioToggle:focus-visible {
+  outline: 3px solid var(--cv-accent);
+  outline-offset: 2px;
+}
+.audioToggle[aria-pressed="true"] {
+  background: var(--cv-accent);
+  color: var(--cv-accent-contrast);
+}
+
+.phaseNotice {
+  padding: 0.9rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--cv-accent) 40%, transparent);
+  border-radius: var(--cv-radius);
+  background: color-mix(in srgb, var(--cv-highlight) 30%, var(--cv-surface));
+  font-weight: 600;
+  text-align: center;
+}
+
+.replay {
+  min-height: 48px;
+  margin-top: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  border: 1.5px solid var(--cv-accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cv-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.replay:focus-visible {
+  outline: 3px solid var(--cv-accent);
+  outline-offset: 3px;
+}

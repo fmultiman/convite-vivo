@@ -1,0 +1,96 @@
+.experience {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  overflow-x: clip;
+  color: var(--cv-text);
+  font-family: var(--cv-font-body);
+  line-height: 1.5;
+}
+/* Fundo fixo via pseudo-elemento (background-attachment: fixed falha no iOS). */
+.experience::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, var(--cv-backdrop-from), var(--cv-backdrop-to));
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 12vw, 5rem);
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: calc(4rem + env(safe-area-inset-top)) 1.25rem 3rem;
+  outline: none;
+}
+
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: 2rem 1rem calc(2rem + env(safe-area-inset-bottom));
+  color: var(--cv-text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+.footer p {
+  margin: 0;
+}
+.brand {
+  font-family: var(--cv-font-display);
+  letter-spacing: 0.04em;
+}
+
+.demoBadge {
+  position: fixed;
+  z-index: 60;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  left: 50%;
+  margin: 0;
+  padding: 0.35rem 0.85rem;
+  translate: -50% 0;
+  border: 1px solid color-mix(in srgb, var(--cv-accent) 50%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cv-surface) 88%, transparent);
+  backdrop-filter: blur(8px);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.previewPanel {
+  position: fixed;
+  z-index: 70;
+  right: 0.75rem;
+  bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  left: 0.75rem;
+  max-width: 34rem;
+  max-height: 60dvh;
+  overflow: auto;
+  padding: 0.6rem 0.9rem;
+  border-radius: 12px;
+  background: #1d1b22;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.3);
+  color: #f5f2f8;
+  font: 13px/1.45 system-ui, sans-serif;
+}
+.previewPanel summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+.previewPanel h2 {
+  margin: 0.8rem 0 0.3rem;
+  color: #f3c37a;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.previewPanel ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.previewPanel code {
+  color: #b9e0ff;
+}

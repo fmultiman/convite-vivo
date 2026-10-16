@@ -1,0 +1,104 @@
+.reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  scroll-margin-top: 2rem;
+}
+.eyebrow {
+  margin: 0;
+  color: var(--cv-text-muted);
+  font-family: var(--cv-font-display);
+  font-size: 1.05rem;
+  font-style: italic;
+  text-wrap: balance;
+}
+.headline {
+  margin: 0;
+  font-family: var(--cv-font-display);
+  font-size: clamp(1.6rem, 7vw, 2.3rem);
+  font-weight: 500;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+.trigger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--cv-radius);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.trigger:disabled {
+  cursor: default;
+}
+.trigger:focus-visible {
+  outline: 3px solid var(--cv-accent);
+  outline-offset: 6px;
+}
+.motif {
+  width: min(66vw, 250px);
+  filter: drop-shadow(0 16px 28px color-mix(in srgb, var(--cv-accent) 30%, transparent));
+}
+.reveal[data-state="closed"] .motif {
+  animation: breathe 3.6s ease-in-out infinite;
+}
+.prompt {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0.75rem 1.5rem;
+  border: 1.5px solid var(--cv-accent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cv-surface) 80%, transparent);
+  font-weight: 700;
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  text-align: start;
+  outline: none;
+}
+/* Sem JavaScript o conteúdo permanece visível. */
+:global(.js) .reveal[data-state="closed"] .content {
+  display: none;
+}
+.reveal[data-state="open"] .content {
+  animation: unveil 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes unveil {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.03) rotate(-1deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal[data-state="closed"] .motif,
+  .reveal[data-state="open"] .content {
+    animation: none;
+  }
+}

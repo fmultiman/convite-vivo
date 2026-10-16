@@ -1,0 +1,231 @@
+/* ---------- Motivos SVG ---------- */
+.motif {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.fill {
+  fill: var(--cv-surface);
+}
+.line {
+  fill: none;
+  stroke: var(--cv-accent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.fill.line {
+  fill: var(--cv-surface);
+}
+.accentFill {
+  fill: var(--cv-highlight);
+}
+.glow {
+  fill: var(--cv-highlight);
+  opacity: 0.35;
+}
+.pearl {
+  fill: #ffffff;
+  stroke: var(--cv-highlight);
+  stroke-width: 2;
+}
+.sealMark {
+  fill: none;
+  stroke: var(--cv-surface);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.sealInner {
+  fill: none;
+  stroke: var(--cv-surface);
+  stroke-width: 2;
+  opacity: 0.7;
+}
+
+.flap,
+.lid,
+.drapeLeft,
+.drapeRight,
+.sealGroup {
+  transform-box: fill-box;
+  transition:
+    transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 600ms ease;
+}
+.flap {
+  transform-origin: 50% 0%;
+}
+.motif[data-open="true"] .flap {
+  transform: scaleY(-1);
+}
+.lid {
+  transform-origin: 100% 100%;
+}
+.motif[data-open="true"] .lid {
+  transform: rotate(-32deg) translateY(-8px);
+}
+.motif[data-motif="gift"] .lid {
+  transform-origin: 50% 100%;
+}
+.motif[data-motif="gift"][data-open="true"] .lid {
+  transform: translateY(-34px) rotate(-10deg);
+}
+.drapeLeft {
+  transform-origin: 0% 50%;
+}
+.drapeRight {
+  transform-origin: 100% 50%;
+}
+.motif[data-open="true"] .drapeLeft,
+.motif[data-open="true"] .drapeRight {
+  transform: scaleX(0.22);
+}
+.sealGroup {
+  transform-origin: 50% 50%;
+}
+.motif[data-open="true"] .sealGroup {
+  transform: scale(1.35);
+  opacity: 0;
+}
+
+/* ---------- Partículas decorativas ---------- */
+.particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.particle {
+  position: absolute;
+  left: var(--x);
+  bottom: -40px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  opacity: 0.55;
+  animation: rise var(--duration) linear var(--delay) infinite;
+  will-change: transform;
+}
+.particles[data-kind="bubbles"] .particle {
+  background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.18) 42%, transparent 72%);
+  border: 1px solid rgb(255 255 255 / 0.65);
+}
+.particles[data-kind="sparkles"] .particle {
+  width: calc(var(--size) / 4);
+  height: calc(var(--size) / 4);
+  background: var(--cv-accent);
+  box-shadow: 0 0 10px var(--cv-accent);
+  animation-name: twinkle-rise;
+}
+.particles[data-kind="petals"] .particle {
+  border-radius: 70% 0 70% 0;
+  background: var(--cv-highlight);
+}
+
+@keyframes rise {
+  to {
+    transform: translate3d(var(--drift), -115vh, 0);
+  }
+}
+@keyframes twinkle-rise {
+  0% {
+    opacity: 0;
+  }
+  20%,
+  80% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift), -115vh, 0);
+  }
+}
+
+/* ---------- Imagens e placeholders ---------- */
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--cv-radius);
+}
+.placeholder {
+  position: relative;
+  display: grid;
+  place-items: end start;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--cv-radius);
+  border: 1px solid color-mix(in srgb, var(--cv-accent) 22%, transparent);
+  background:
+    radial-gradient(120% 80% at 18% 8%, color-mix(in srgb, var(--cv-highlight) 55%, transparent), transparent 62%),
+    radial-gradient(100% 70% at 92% 92%, color-mix(in srgb, var(--cv-accent) 32%, transparent), transparent 62%),
+    color-mix(in srgb, var(--cv-surface) 70%, var(--cv-backdrop-to));
+}
+.placeholderShine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.3) 50%, transparent 70%);
+  background-size: 250% 100%;
+  animation: shine 4.5s ease-in-out infinite;
+}
+.placeholderLabel {
+  position: relative;
+  margin: 0.75rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px dashed var(--cv-accent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cv-surface) 88%, transparent);
+  color: var(--cv-text-muted);
+  font: 600 0.72rem/1.4 system-ui, sans-serif;
+}
+@keyframes shine {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+/* ---------- Valores pendentes (somente prévia) ---------- */
+.pending {
+  padding: 0 0.25em;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--cv-highlight) 35%, transparent);
+}
+.pendingBadge {
+  display: inline-block;
+  padding: 0 0.5em;
+  border-radius: 999px;
+  background: #f3c37a;
+  color: #3a2600;
+  font: 700 0.62rem/1.7 system-ui, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle {
+    animation: none;
+    bottom: auto;
+    top: calc(var(--x) * 0.9);
+    opacity: 0.25;
+  }
+  .placeholderShine {
+    animation: none;
+  }
+  .flap,
+  .lid,
+  .drapeLeft,
+  .drapeRight,
+  .sealGroup {
+    transition: none;
+  }
+}

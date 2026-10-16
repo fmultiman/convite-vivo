@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" role="img" aria-label="Constelações douradas ligando duas estrelas">
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="40%" r="75%">
+      <stop offset="0" stop-color="#22325a"/>
+      <stop offset="1" stop-color="#0b1424"/>
+    </radialGradient>
+    <radialGradient id="glow" r="50%">
+      <stop offset="0" stop-color="#f6dc9c" stop-opacity="1"/>
+      <stop offset="1" stop-color="#f6dc9c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <g fill="#e9dcc0" opacity="0.55">
+    <circle cx="80" cy="90" r="1.6"/><circle cx="210" cy="160" r="1.2"/><circle cx="330" cy="70" r="1.8"/>
+    <circle cx="470" cy="130" r="1.1"/><circle cx="640" cy="60" r="1.5"/><circle cx="760" cy="150" r="1.2"/>
+    <circle cx="905" cy="85" r="1.7"/><circle cx="1080" cy="140" r="1.3"/><circle cx="140" cy="640" r="1.4"/>
+    <circle cx="300" cy="720" r="1.1"/><circle cx="560" cy="700" r="1.6"/><circle cx="820" cy="690" r="1.2"/>
+    <circle cx="1010" cy="720" r="1.5"/><circle cx="1130" cy="600" r="1.1"/><circle cx="60" cy="400" r="1.3"/>
+    <circle cx="1150" cy="380" r="1.4"/><circle cx="600" cy="400" r="1"/><circle cx="420" cy="560" r="1.2"/>
+  </g>
+  <g stroke="#d7b26c" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.85">
+    <polyline points="230,470 330,380 420,420 500,330 600,300"/>
+    <polyline points="970,470 870,380 780,420 700,330 600,300"/>
+    <polyline points="330,380 300,270"/>
+    <polyline points="870,380 900,270"/>
+  </g>
+  <g fill="#f3e3b8">
+    <circle cx="230" cy="470" r="4"/><circle cx="330" cy="380" r="3.5"/><circle cx="420" cy="420" r="3"/>
+    <circle cx="500" cy="330" r="3.5"/><circle cx="300" cy="270" r="3"/>
+    <circle cx="970" cy="470" r="4"/><circle cx="870" cy="380" r="3.5"/><circle cx="780" cy="420" r="3"/>
+    <circle cx="700" cy="330" r="3.5"/><circle cx="900" cy="270" r="3"/>
+  </g>
+  <circle cx="600" cy="300" r="70" fill="url(#glow)"/>
+  <circle cx="600" cy="300" r="7" fill="#fff4d6"/>
+</svg>

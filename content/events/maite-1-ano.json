@@ -1,0 +1,207 @@
+{
+  "$schema": "../event.schema.json",
+  "schemaVersion": 1,
+  "revision": 1,
+  "updatedAt": "2026-10-15T17:00:00-03:00",
+  "id": "evt_m41t3a01",
+  "slug": "maite-1-ano",
+  "type": "birthday",
+  "status": "draft",
+  "demo": false,
+  "locale": "pt-BR",
+  "name": "Maitê",
+  "title": "Maitê — 1 aninho",
+  "schedule": {
+    "date": "2026-11-08",
+    "timezone": "America/Sao_Paulo",
+    "startTime": {
+      "value": "13:00",
+      "confirmed": false,
+      "note": "Dado mais recente: 13h. O roteiro original (CENA 4) indica 12h. Confirmar com a família antes de publicar (A-013)."
+    }
+  },
+  "venue": {
+    "name": {
+      "value": null,
+      "confirmed": false,
+      "note": "Nome do local ainda não informado."
+    },
+    "address": {
+      "value": null,
+      "confirmed": false,
+      "note": "Endereço de planejamento está nos docs 09/12 e não é copiado para o repositório até autorização da família. Faltam cidade/UF."
+    }
+  },
+  "practicalInfo": [],
+  "theme": {
+    "colors": {
+      "backdropFrom": "#EAF7F5",
+      "backdropTo": "#EADCF4",
+      "surface": "#FFFAFD",
+      "text": "#46365C",
+      "textMuted": "#76678A",
+      "accent": "#8A5BB5",
+      "accentContrast": "#FFFFFF",
+      "highlight": "#F2B3C6"
+    },
+    "fonts": { "display": "fraunces", "body": "nunito" },
+    "shape": "round",
+    "particles": "bubbles"
+  },
+  "assets": {
+    "kf01-praia-envelope": {
+      "kind": "image",
+      "status": "pending",
+      "alt": "Praia encantada de areia clara com um envelope rosa, conchas e pérolas.",
+      "placeholderLabel": "Praia com envelope · KF-01",
+      "source": "Content Studio · KF-01"
+    },
+    "kf03-maite-cavalo-marinho": {
+      "kind": "image",
+      "status": "pending",
+      "alt": "Ilustração da Maitê de vestido lilás sobre um cavalo-marinho mágico, no fundo do mar.",
+      "placeholderLabel": "Maitê e o cavalo-marinho · KF-03 · aguardando asset aprovado e autorização de uso",
+      "source": "Content Studio · KF-03"
+    },
+    "kf04-concha": {
+      "kind": "image",
+      "status": "pending",
+      "alt": "Grande concha lilás no fundo do mar, cercada de pérolas e brilhos.",
+      "placeholderLabel": "Grande concha · KF-04",
+      "source": "Content Studio · KF-04"
+    },
+    "teaser": {
+      "kind": "video",
+      "status": "pending",
+      "alt": "Teaser animado do convite: a praia, as bolhas, o mergulho e a concha que se abre.",
+      "placeholderLabel": "Teaser animado (33 s) · aguardando versão web e autorização",
+      "poster": "kf04-concha",
+      "width": 1080,
+      "height": 1914,
+      "source": "convite_vivo_maite.mp4 · 33,019 s · 1080×1914"
+    },
+    "og-capa": {
+      "kind": "image",
+      "status": "pending",
+      "alt": "Capa do convite da Maitê no fundo do mar.",
+      "placeholderLabel": "Capa / OG · KF-05",
+      "source": "Content Studio · KF-05"
+    },
+    "trilha": {
+      "kind": "audio",
+      "status": "pending",
+      "alt": "Trilha instrumental suave de fundo do mar.",
+      "placeholderLabel": "Trilha instrumental",
+      "source": "Aniversário Maitê/music"
+    }
+  },
+  "scenes": [
+    {
+      "kind": "entry",
+      "id": "praia",
+      "eyebrow": "Existe um lugar onde as ondas guardam segredos…",
+      "headline": "Uma pequena aventura está prestes a começar",
+      "body": "…e cada bolha pode levar a uma nova descoberta.",
+      "tag": "Maitê — 1 aninho",
+      "ctaLabel": "Abrir o envelope",
+      "motif": "envelope",
+      "background": "kf01-praia-envelope",
+      "transition": "bubbles"
+    },
+    {
+      "kind": "image",
+      "id": "chegada",
+      "asset": "kf03-maite-cavalo-marinho",
+      "layout": "framed",
+      "eyebrow": "No fundo do mar encantado",
+      "headline": "Olá! Eu sou a Maitê",
+      "body": "Tenho um convite muito especial: quero comemorar o meu primeiro aninho em uma aventura encantada no fundo do mar!"
+    },
+    {
+      "kind": "video",
+      "id": "teaser",
+      "asset": "teaser",
+      "ambient": false,
+      "eyebrow": "Uma surpresa está chegando",
+      "headline": "Siga as bolhas"
+    },
+    {
+      "kind": "reveal",
+      "id": "concha",
+      "motif": "shell",
+      "prompt": "Abrir a concha",
+      "eyebrow": "Lá no fundo, uma grande concha guarda um segredo",
+      "headline": "Toque para revelar o convite",
+      "children": [
+        { "kind": "details", "id": "convite", "eyebrow": "Maitê faz", "headline": "1 aninho" },
+        { "kind": "countdown", "id": "contagem" },
+        { "kind": "actions", "id": "acoes", "actions": ["confirmar", "mapa", "presentes"] },
+        { "kind": "gifts", "id": "presentes", "headline": "Sugestões de presente" }
+      ]
+    },
+    {
+      "kind": "message",
+      "id": "final",
+      "eyebrow": "Agora que você já sabe onde e quando…",
+      "headline": "só falta uma coisa: espero por você!",
+      "body": "Sua presença vai deixar esse dia ainda mais especial.",
+      "replay": true
+    }
+  ],
+  "actions": [
+    {
+      "kind": "rsvp",
+      "id": "confirmar",
+      "label": "Confirmar presença",
+      "confirmed": false,
+      "note": "Definir telefone e formato do RSVP com a família.",
+      "target": {
+        "channel": "whatsapp",
+        "phone": null,
+        "message": "Olá! Quero confirmar presença no aniversário de 1 aninho da Maitê 💜"
+      }
+    },
+    {
+      "kind": "map",
+      "id": "mapa",
+      "label": "Ver no mapa",
+      "confirmed": false,
+      "url": null,
+      "note": "Aguardando endereço completo confirmado (com cidade/UF)."
+    },
+    {
+      "kind": "gifts",
+      "id": "presentes",
+      "label": "Sugestão de presente",
+      "confirmed": false,
+      "url": null,
+      "note": "Leva à seção de presentes da página. Confirmar texto com a família."
+    }
+  ],
+  "gifts": {
+    "intro": "Se quiser presentear, aqui vão algumas ideias:",
+    "items": [
+      { "text": "Roupa tamanho 1 ou 2", "confirmed": false },
+      { "text": "Calçado tamanho 20", "confirmed": false },
+      { "text": "Brinquedo", "confirmed": false }
+    ],
+    "note": "Sua presença é o presente mais especial."
+  },
+  "audio": { "asset": "trilha", "label": "Trilha do fundo do mar" },
+  "og": {
+    "title": "Maitê faz 1 aninho!",
+    "description": "Uma pequena aventura encantada no fundo do mar está prestes a começar. Toque para abrir o convite.",
+    "image": "og-capa"
+  },
+  "seo": { "indexable": false },
+  "lifecycle": {
+    "phaseOverride": null,
+    "eventDay": { "message": "É hoje! Estamos esperando por você no fundo do mar." },
+    "postEvent": {
+      "enabled": false,
+      "headline": "Obrigada por fazer parte deste dia!",
+      "body": "Em breve, lembranças especiais por aqui."
+    },
+    "archiveAfterDays": null
+  }
+}

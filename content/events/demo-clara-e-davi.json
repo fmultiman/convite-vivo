@@ -1,0 +1,153 @@
+{
+  "$schema": "../event.schema.json",
+  "schemaVersion": 1,
+  "revision": 1,
+  "updatedAt": "2026-10-15T17:00:00-03:00",
+  "id": "evt_d3m0c1d2",
+  "slug": "demo-clara-e-davi",
+  "type": "wedding",
+  "status": "published",
+  "demo": true,
+  "locale": "pt-BR",
+  "name": "Clara & Davi",
+  "title": "Clara & Davi",
+  "schedule": {
+    "date": "2027-03-20",
+    "timezone": "America/Sao_Paulo",
+    "startTime": { "value": "19:30", "confirmed": true }
+  },
+  "venue": {
+    "name": { "value": "Casa das Estrelas (fictícia)", "confirmed": true },
+    "address": { "value": "Endereço fictício de demonstração — Belo Horizonte, MG", "confirmed": true }
+  },
+  "practicalInfo": [
+    { "id": "traje", "label": "Traje", "text": "Passeio completo", "confirmed": true },
+    { "id": "estacionamento", "label": "Estacionamento", "text": "Valet no local", "confirmed": true },
+    { "id": "criancas", "label": "Crianças", "text": "Espaço kids até 22h", "confirmed": false }
+  ],
+  "theme": {
+    "colors": {
+      "backdropFrom": "#0D1828",
+      "backdropTo": "#1E2943",
+      "surface": "#15223A",
+      "text": "#F3EBDD",
+      "textMuted": "#BDB5A6",
+      "accent": "#D7B26C",
+      "accentContrast": "#1A1408",
+      "highlight": "#9DB8A2"
+    },
+    "fonts": { "display": "cormorant", "body": "jost" },
+    "shape": "sharp",
+    "particles": "sparkles"
+  },
+  "assets": {
+    "constelacao": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/demo-clara-e-davi/constelacao.svg",
+      "width": 1200,
+      "height": 800,
+      "alt": "Ilustração abstrata de constelações douradas ligando duas estrelas.",
+      "placeholderLabel": "Ilustração de constelação",
+      "source": "Arte vetorial de demonstração (criada no repositório)"
+    },
+    "filme": {
+      "kind": "video",
+      "status": "pending",
+      "alt": "Filme curto do casal (demonstração de vídeo indisponível).",
+      "placeholderLabel": "Filme do convite",
+      "poster": "constelacao",
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "scenes": [
+    {
+      "kind": "entry",
+      "id": "abertura",
+      "eyebrow": "Com a bênção de nossas famílias",
+      "headline": "Clara & Davi",
+      "body": "convidam para a celebração do seu casamento",
+      "tag": "20 · 03 · 2027",
+      "ctaLabel": "Abrir convite",
+      "motif": "seal",
+      "transition": "sparkles"
+    },
+    { "kind": "details", "id": "quando-onde", "eyebrow": "Sábado, sob as estrelas", "headline": "Quando e onde" },
+    { "kind": "countdown", "id": "contagem", "headline": "Faltam" },
+    {
+      "kind": "image",
+      "id": "historia",
+      "asset": "constelacao",
+      "layout": "full-bleed",
+      "eyebrow": "Nossa história",
+      "headline": "Duas estrelas, uma constelação",
+      "body": "Um texto curto e editável sobre o casal entra aqui. Este evento é fictício e existe para provar que o mesmo renderer serve experiências diferentes."
+    },
+    {
+      "kind": "video",
+      "id": "filme",
+      "asset": "filme",
+      "ambient": false,
+      "headline": "O filme do convite"
+    },
+    {
+      "kind": "reveal",
+      "id": "traje",
+      "motif": "curtain",
+      "prompt": "Revelar o traje",
+      "headline": "Um detalhe para a noite",
+      "children": [
+        {
+          "kind": "message",
+          "id": "traje-texto",
+          "eyebrow": "Traje",
+          "headline": "Passeio completo",
+          "body": "Tons de azul-noite e dourado são muito bem-vindos."
+        }
+      ]
+    },
+    {
+      "kind": "actions",
+      "id": "acoes",
+      "headline": "Confirme e planeje",
+      "actions": ["rsvp", "mapa", "lista", "hospedagem"]
+    },
+    { "kind": "gifts", "id": "presentes", "headline": "Presentes" },
+    { "kind": "message", "id": "final", "headline": "Contamos com você", "body": "Com carinho, Clara & Davi." }
+  ],
+  "actions": [
+    {
+      "kind": "rsvp",
+      "id": "rsvp",
+      "label": "Confirmar presença",
+      "confirmed": true,
+      "target": { "channel": "link", "url": "https://example.com/demo/rsvp" }
+    },
+    { "kind": "map", "id": "mapa", "label": "Como chegar", "confirmed": true, "url": "https://example.com/demo/mapa" },
+    { "kind": "gifts", "id": "lista", "label": "Lista de presentes", "confirmed": true, "url": "https://example.com/demo/lista" },
+    { "kind": "link", "id": "hospedagem", "label": "Hospedagem", "confirmed": true, "url": "https://example.com/demo/hospedagem" }
+  ],
+  "gifts": {
+    "intro": "Sua presença é o essencial. Se quiser nos presentear:",
+    "items": [
+      { "text": "Lista de presentes online (botão acima)", "confirmed": true },
+      { "text": "Contribuição para a lua de mel", "confirmed": true }
+    ]
+  },
+  "og": {
+    "title": "Clara & Davi — 20.03.2027",
+    "description": "Convite de demonstração (evento fictício) do Convite Vivo."
+  },
+  "seo": { "indexable": false },
+  "lifecycle": {
+    "phaseOverride": null,
+    "eventDay": { "message": "É hoje! Nos vemos às 19h30." },
+    "postEvent": {
+      "enabled": true,
+      "headline": "Obrigado por celebrar conosco",
+      "body": "Foi uma noite inesquecível."
+    },
+    "archiveAfterDays": 180
+  }
+}
