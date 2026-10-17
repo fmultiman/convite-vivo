@@ -1,8 +1,14 @@
 export const BRAND_NAME = "Convite Vivo";
 
-/** URL pública base usada em canonical e Open Graph. */
+/**
+ * URL pública base usada em canonical e Open Graph.
+ * Prioridade: NEXT_PUBLIC_SITE_URL (domínio aprovado) > URL do deployment na Vercel > localhost (dev).
+ */
 export function getSiteUrl(): URL {
-  return new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000");
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  if (configured) return new URL(configured);
+  const vercel = process.env.VERCEL_URL;
+  return new URL(vercel ? `https://${vercel}` : "http://localhost:3000");
 }
 
 /**
