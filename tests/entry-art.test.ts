@@ -1,4 +1,5 @@
-import { existsSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { eventConfigSchema } from "@/contract/event.schema";
@@ -117,15 +118,19 @@ describe("assets publicados em public/", () => {
     expect(missing).toEqual([]);
   });
 
-  it("a pasta pública da Maitê contém somente derivados desta cena, sem arquivos da criança", () => {
+  it("a pasta pública da Maitê só tem WebP; o único arquivo da criança é a arte autorizada, com hash fixado", () => {
     const dir = join(publicDir, "events", "maite-1-ano");
     const files = readdirSync(dir, { recursive: true, withFileTypes: true })
       .filter((e) => e.isFile())
-      .map((e) => e.name);
+      .map((e) => join(e.parentPath, e.name).replace(dir, "").replace(/\\/g, "/"));
     expect(files.length).toBeGreaterThan(0);
-    for (const name of files) {
-      expect(name, name).toMatch(/^[a-z-]+\.webp$/);
-      expect(name).not.toMatch(/maite|kf0|foto|ref-/);
-    }
+    const child = files.filter((f) => /maite|kf0|foto|ref-/.test(f));
+    expect(child).toEqual(["/scene-03/maite-cavalo-marinho.webp"]);
+    for (const f of files) expect(f, f).toMatch(/\.webp$/);
+    // O hash da arte autorizada no verificador de segurança é o do arquivo que está no repositório.
+    const safety = readFileSync(join(process.cwd(), "scripts/check-public-safety.mjs"), "utf8");
+    const pinned = safety.match(/"public\/events\/maite-1-ano\/scene-03\/maite-cavalo-marinho\.webp",\s*"([0-9a-f]{64})"/)?.[1];
+    expect(pinned).toBeTruthy();
+    expect(createHash("sha256").update(readFileSync(join(dir, "scene-03/maite-cavalo-marinho.webp"))).digest("hex")).toBe(pinned);
   });
 });

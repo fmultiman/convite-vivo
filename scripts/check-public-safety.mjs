@@ -9,6 +9,7 @@
  * Não substitui revisão humana antes do primeiro push.
  */
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -23,6 +24,17 @@ const BLOCKED_PATH = /(^|\/)(assets|private|_private|raw|originals)\//i;
 const BLOCKED_NAME = /(^|\/)foto_[^/]*$/i;
 /** Derivados públicos: só WebP/SVG dentro de public/events/<slug>/. */
 const PUBLIC_MEDIA = /^public\/events\/[a-z0-9-]+\/.+\.(webp|svg)$/;
+/**
+ * Derivados que retratam a criança só podem ser versionados se estiverem nesta lista
+ * (caminho EXATO + SHA-256 do arquivo). Qualquer outro arquivo com o nome restrito, ou o
+ * mesmo caminho com conteúdo diferente (outra imagem, outra versão), falha. Autorização:
+ * operador do projeto, 16/10/2026, uso no microsite piloto. Trocar a arte exige atualizar o hash
+ * aqui, de propósito. Fotos originais e PDFs continuam bloqueados pelas regras gerais.
+ */
+const RESTRICTED_NAME = /maite-cavalo-marinho/i;
+const APPROVED_CHILD_ART = new Map([
+  ["public/events/maite-1-ano/scene-03/maite-cavalo-marinho.webp", "f6e36c4837e3bcd3dc9b1791663da6c9978ad601af1ae28efc27b95eb1cdb924"],
+]);
 const MAX_BYTES = 1_500_000;
 const TEXT_EXT = new Set([".ts", ".tsx", ".js", ".mjs", ".json", ".md", ".css", ".txt", ".example"]);
 
@@ -31,6 +43,13 @@ for (const file of files) {
   const ext = extname(file).toLowerCase();
   if (BLOCKED_PATH.test(file)) problems.push(`${file}: pasta privada/bruta`);
   if (BLOCKED_NAME.test(file)) problems.push(`${file}: nome de foto`);
+  if (RESTRICTED_NAME.test(file)) {
+    const expected = APPROVED_CHILD_ART.get(file);
+    if (!expected) problems.push(`${file}: imagem da criança fora da lista de arte autorizada`);
+    else if (createHash("sha256").update(readFileSync(join(root, file))).digest("hex") !== expected) {
+      problems.push(`${file}: conteúdo diferente da arte autorizada (hash não confere)`);
+    }
+  }
   if (BLOCKED_EXT.has(ext)) problems.push(`${file}: tipo de arquivo não permitido (${ext})`);
   if ((ext === ".webp" || ext === ".svg") && !PUBLIC_MEDIA.test(file)) problems.push(`${file}: mídia fora de public/events/<slug>/`);
   const size = statSync(join(root, file)).size;

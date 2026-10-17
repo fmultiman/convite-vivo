@@ -11,6 +11,23 @@ import styles from "./experience.module.css";
 
 const MAIN_ID = "conteudo";
 
+/** Dois palcos com o mesmo fundo compartilham o fundo desfocado das laterais. */
+function sameBackground(a: unknown, b: unknown): boolean {
+  const id = (s: unknown) => (s as { art?: { background?: { id?: string } } }).art?.background?.id;
+  return Boolean(id(a)) && id(a) === id(b);
+}
+
+/** Agrupa palcos consecutivos (o mundo deles é contínuo); as demais cenas ficam sozinhas. */
+function groupScenes<T extends { kind: string }>(scenes: T[]): { scene: T; index: number }[][] {
+  const groups: { scene: T; index: number }[][] = [];
+  scenes.forEach((scene, index) => {
+    const prev = groups.at(-1);
+    if (scene.kind === "stage" && prev && prev[0].scene.kind === "stage") prev.push({ scene, index });
+    else groups.push([{ scene, index }]);
+  });
+  return groups;
+}
+
 /**
  * Event Renderer: monta qualquer evento a partir do modelo resolvido.
  * Não há código específico por evento — tudo vem da configuração.
@@ -37,9 +54,25 @@ export function EventExperience({ model }: { model: ExperienceModel }) {
       <main id={MAIN_ID} tabIndex={-1} className={styles.main}>
         {entry ? null : <h1 className="visually-hidden">{model.event.title}</h1>}
         <PhaseNotice lifecycle={model.lifecycle} />
-        {scenes.map((scene, i) => (
-          <SceneView key={scene.id} scene={scene} model={model} first={Boolean(entry) && i === 0} />
-        ))}
+        {groupScenes(scenes).map((group, g) =>
+          group.length > 1 ? (
+            <div key={`group-${g}`} className={styles.stageGroup} data-stage-group data-first={(Boolean(entry) && group[0].index === 0) || undefined}>
+              {group.map(({ scene, index }, k) => (
+                <SceneView
+                  key={scene.id}
+                  scene={scene}
+                  model={model}
+                  first={Boolean(entry) && index === 0}
+                  stack={{ after: k > 0, last: k === group.length - 1, shareFill: k > 0 && sameBackground(scene, group[k - 1].scene) }}
+                />
+              ))}
+            </div>
+          ) : (
+            group.map(({ scene, index }) => (
+              <SceneView key={scene.id} scene={scene} model={model} first={Boolean(entry) && index === 0} />
+            ))
+          ),
+        )}
       </main>
 
       <footer className={styles.footer}>

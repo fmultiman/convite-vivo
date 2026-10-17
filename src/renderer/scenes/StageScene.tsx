@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
-import { BubbleCanvas } from "../fx/BubbleCanvas";
+import { BubbleCanvas, REVEAL_EVENT } from "../fx/BubbleCanvas";
 import { FishDefs, FishSprite, usedVariants } from "../fx/Fish";
 import { EXPERIENCE_EVENTS, useFxMode, usePrefersReducedMotion } from "../client/hooks";
+import { AssetPlaceholder } from "../primitives/AssetImage";
 import { LayerImage } from "../primitives/LayerImage";
-import type { ResolvedDecor, ResolvedScene } from "../model";
+import type { ResolvedDecor, ResolvedFeature, ResolvedScene } from "../model";
 import styles from "./stage.module.css";
 
 type StageModel = Extract<ResolvedScene, { kind: "stage" }>;
@@ -62,11 +63,207 @@ function Motes({ count }: { count: number }) {
   );
 }
 
-/** Um plano de profundidade: deriva lenta (CSS) + parallax leve do mouse (variáveis --px/--py). */
-function Plane({ name, children }: { name: "bg" | "far" | "mid" | "near" | "front"; children: ReactNode }) {
+/**
+ * Entrada da cena: um sentinela no topo do palco avisa quando o topo cruza 65 % da tela
+ * (35 % do palco visível). Daí saem duas coisas, ambas conduzidas por CSS:
+ *  - `data-entered`: o palco está "em cena" (liga/desliga com a rolagem; permanece ligado
+ *    depois que o topo passa para cima). Em palcos consecutivos é o que dissolve o mundo
+ *    do palco no quadro inteiro e avança a câmera.
+ *  - `data-revealed`: a revelação do destaque, uma vez só (e avisa o canvas, que solta
+ *    bolhas junto). "Rever o convite" rearma tudo. Com reduced motion o destaque já nasce
+ *    revelado, sem animação.
+ */
+function useReveal(ref: RefObject<HTMLElement | null>, hasFeature: boolean, observe: boolean, reduced: boolean) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let revealed = false;
+    const reveal = (silent: boolean) => {
+      if (revealed || !hasFeature) return;
+      revealed = true;
+      el.setAttribute("data-revealed", "");
+      if (!silent) el.dispatchEvent(new CustomEvent(REVEAL_EVENT));
+    };
+    if (reduced) {
+      el.setAttribute("data-revealed", "");
+      revealed = true;
+    }
+
+    // Quem aparece no quadro: este palco ("data-live", até a dissolução de saída terminar) e o
+    // palco anterior, que fica "coberto" (não pintado nem animado em canvas) quando o de baixo
+    // já o cobriu por inteiro. O canvas de cada palco só roda enquanto o seu mundo é visto.
+    const prev = el.previousElementSibling instanceof HTMLElement && el.previousElementSibling.hasAttribute("data-stage") ? el.previousElementSibling : null;
+    const settle = reduced ? 60 : 1900; // um pouco mais que a dissolução (1,8 s)
+    let coverTimer = 0;
+    let liveTimer = 0;
+    const myWorld = () => el.querySelector("[data-world]");
+    const prevWorld = () => prev?.querySelector("[data-world]") ?? null;
+    const setEntered = (entered: boolean) => {
+      window.clearTimeout(coverTimer);
+      window.clearTimeout(liveTimer);
+      if (entered) {
+        const wasLive = el.hasAttribute("data-live");
+        el.setAttribute("data-live", ""); // mostra o mundo (ainda transparente)
+        if (!wasLive) {
+          void el.offsetHeight; // fixa o estado inicial (opacity 0) para a dissolução ter de onde partir
+          syncWorld(prevWorld(), myWorld()); // entra em fase com o mundo que está na tela
+        }
+        el.setAttribute("data-entered", "");
+        if (prev) coverTimer = window.setTimeout(() => prev.setAttribute("data-covered", ""), settle);
+      } else {
+        el.removeAttribute("data-entered");
+        if (prev?.hasAttribute("data-covered")) {
+          prev.removeAttribute("data-covered"); // o de baixo volta a ser renderizado já...
+          void prev.offsetHeight;
+          syncWorld(myWorld(), prevWorld()); // ...em fase com o que está saindo
+        }
+        liveTimer = window.setTimeout(() => el.removeAttribute("data-live"), settle);
+      }
+    };
+
+    const sentinel = el.querySelector("[data-sentinel]");
+    let io: IntersectionObserver | null = null;
+    if (observe && !("IntersectionObserver" in window)) {
+      // Sem IntersectionObserver o mundo não pode ficar escondido à espera de um sinal que não vem.
+      setEntered(true);
+      reveal(true);
+    } else if (observe && sentinel) {
+      io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            // "Entrou" = o sentinela está na faixa útil OU já passou por cima (continua em cena).
+            const entered = e.isIntersecting || e.boundingClientRect.top < 0;
+            setEntered(entered);
+            if (entered) reveal(false);
+          }
+        },
+        { rootMargin: "0px 0px -35% 0px", threshold: 0 },
+      );
+      io.observe(sentinel);
+    }
+    const rearm = () => {
+      revealed = reduced;
+      if (reduced) el.setAttribute("data-revealed", "");
+      else el.removeAttribute("data-revealed");
+      setEntered(false);
+      el.removeAttribute("data-live");
+      if (io && sentinel) {
+        io.unobserve(sentinel);
+        io.observe(sentinel);
+      }
+    };
+    window.addEventListener(EXPERIENCE_EVENTS.replay, rearm);
+    return () => {
+      io?.disconnect();
+      window.clearTimeout(coverTimer);
+      window.clearTimeout(liveTimer);
+      window.removeEventListener(EXPERIENCE_EVENTS.replay, rearm);
+      prev?.removeAttribute("data-covered");
+      for (const attr of ["data-revealed", "data-entered", "data-live"]) el.removeAttribute(attr);
+    };
+  }, [ref, hasFeature, observe, reduced]);
+}
+
+/**
+ * Ressincroniza as animações CSS infinitas de um mundo com as do outro (mesma `currentTime`).
+ * Mundos escondidos são `display: none` (não animam nem custam nada); ao voltarem, as animações
+ * reiniciam do zero e precisam ficar em fase com as do mundo que está na tela, senão a dissolução
+ * mostraria dois cardumes e dois conjuntos de bolhas em posições diferentes. Os dois mundos têm
+ * a mesma estrutura (mesma decoração, peixes, luz), então pareamos por camada + posição.
+ */
+function syncWorld(from: Element | null, to: Element | null) {
+  if (!from || !to) return;
+  const key = (root: Element, a: CSSAnimation) => {
+    const target = a.effect && "target" in a.effect ? (a.effect.target as Element | null) : null;
+    if (!target) return null;
+    const path: number[] = [];
+    let node: Element | null = target;
+    let top: Element | null = null;
+    while (node && node !== root) {
+      const parent: Element | null = node.parentElement;
+      if (parent === root) top = node;
+      if (parent) path.push(Array.prototype.indexOf.call(parent.children, node));
+      node = parent;
+    }
+    if (!top) return null;
+    const layer = (top as HTMLElement).dataset.layer ?? top.className; // camada pelo nome, não pela posição
+    return `${layer}|${path.slice(0, -1).reverse().join("/")}|${a.animationName}`;
+  };
+  const infinite = (a: Animation): a is CSSAnimation =>
+    "animationName" in a && a.effect?.getComputedTiming().iterations === Infinity;
+  const source = new Map<string, number>();
+  for (const a of from.getAnimations({ subtree: true })) {
+    if (!infinite(a)) continue;
+    const k = key(from, a);
+    if (k && a.currentTime !== null) source.set(k, Number(a.currentTime));
+  }
+  for (const a of to.getAnimations({ subtree: true })) {
+    if (!infinite(a)) continue;
+    const k = key(to, a);
+    const t = k ? source.get(k) : undefined;
+    if (t !== undefined) a.currentTime = t;
+  }
+}
+
+/** Faíscas da revelação: saem do centro do destaque em todas as direções, uma vez. */
+function Sparkles({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <div className={styles.sparks} aria-hidden="true">
+      {Array.from({ length: count }, (_, i) => (
+        <span
+          key={i}
+          data-reach={["s", "m", "l"][i % 3]}
+          style={
+            {
+              "--a": (i * (360 / count) + (i % 3) * 9).toFixed(1),
+              "--s": `${(5 + ((i * 5) % 6)).toFixed(0)}px`,
+              "--t": `${((i % 5) * 0.07).toFixed(2)}s`,
+            } as CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+/** O destaque da cena: brilho + faíscas + aproximação + idle. Imagem aprovada ou placeholder (prévia). */
+function Feature({ feature }: { feature: ResolvedFeature }) {
+  const style = {
+    "--x": feature.x,
+    "--y": feature.y,
+    "--w": feature.width,
+    "--fx": feature.from.x,
+    "--fy": feature.from.y,
+    "--fs": feature.from.scale,
+    "--fdelay": `${feature.delay}s`,
+  } as CSSProperties;
+  return (
+    <div className={styles.feature} style={style} data-feature>
+      {feature.glow ? <div className={styles.glow} aria-hidden="true" /> : null}
+      <Sparkles count={feature.sparkles} />
+      <div className={styles.approach}>
+        <div className={styles.idle}>
+          {feature.image ? (
+            <LayerImage image={feature.image} alt={feature.alt} className={styles.featureImg} />
+          ) : (
+            <AssetPlaceholder label={feature.label} width={7} height={10} className={styles.featurePlaceholder} />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Um plano de profundidade, em duas camadas: o plano (parallax do mouse e câmera, via
+ * translate/scale) e, dentro dele, a deriva lenta (animação de transform). Separar as duas
+ * mantém a deriva no compositor (ver stage.module.css).
+ */
+function Plane({ name, children }: { name: "bg" | "far" | "mid" | "feature" | "near" | "front"; children: ReactNode }) {
   return (
     <div className={styles.plane} data-layer={name}>
-      {children}
+      <div className={styles.drift}>{children}</div>
     </div>
   );
 }
@@ -147,7 +344,18 @@ function Sprite({ item, index }: { item: ResolvedDecor; index: number }) {
  * luz); o canvas é um aprimoramento opcional, só atmosférico. Sem canvas (indisponível,
  * reduced motion ou "#fx=css") a cena continua completa, com partículas em CSS.
  */
-export function StageScene({ scene, first, tint }: { scene: StageModel; first: boolean; tint?: string }) {
+export function StageScene({
+  scene,
+  first,
+  stack,
+  tint,
+}: {
+  scene: StageModel;
+  first: boolean;
+  /** Presente quando o palco faz parte de um grupo de palcos consecutivos. */
+  stack?: { after: boolean; last: boolean; shareFill: boolean };
+  tint?: string;
+}) {
   const { art } = scene;
   const fx = useFxMode();
   const reduced = usePrefersReducedMotion();
@@ -170,6 +378,7 @@ export function StageScene({ scene, first, tint }: { scene: StageModel; first: b
   const useCanvas = Boolean(canvas) && fx === "canvas" && !reduced;
   const stageRef = useRef<HTMLElement>(null);
   useStageParallax(stageRef, (scene.ambience?.parallax ?? true) && !reduced);
+  useReveal(stageRef, Boolean(art?.feature), Boolean(art?.feature || stack?.after), reduced);
   const titleId = scene.headline ? `${scene.id}-title` : undefined;
 
   const text = (
@@ -206,17 +415,22 @@ export function StageScene({ scene, first, tint }: { scene: StageModel; first: b
     "--aspect": `${art.background.width} / ${art.background.height}`,
     "--aspect-n": art.background.width / art.background.height,
     "--tint": tint,
+    // Enquadramento do fundo (a "câmera"): zoom e ponto focal.
+    "--zoom": scene.view?.zoom ?? 1,
+    "--vx": `${scene.view?.x ?? 50}%`,
+    "--vy": `${scene.view?.y ?? 50}%`,
   } as CSSProperties;
 
   return (
-    <section ref={stageRef} id={scene.id} className={styles.stage} style={stageStyle} data-stage data-first={first || undefined} aria-labelledby={titleId}>
+    <section ref={stageRef} id={scene.id} className={styles.stage} style={stageStyle} data-stage data-first={first || undefined} data-grouped={stack ? "" : undefined} data-after-stage={stack?.after || undefined} data-group-last={stack?.last || undefined} data-share-fill={stack?.shareFill || undefined} data-has-feature={art.feature ? "" : undefined} aria-labelledby={titleId}>
+      {art.feature || stack?.after ? <span className={styles.sentinel} data-sentinel aria-hidden="true" /> : null}
       {/* Telas largas: o mesmo fundo desfocado preenche as laterais da coluna central. */}
       <div className={styles.fill} aria-hidden="true">
         {armed ? <LayerImage image={art.background} className={styles.fillImg} lazy /> : null}
       </div>
 
       <div className={styles.box}>
-        <div className={styles.world}>
+        <div className={styles.world} data-world>
           {fishList.length > 0 ? <FishDefs prefix={fishPrefix} variants={usedVariants(fishList)} /> : null}
           {/* A — fundo */}
           <Plane name="bg">{armed ? <LayerImage image={art.background} className={styles.bg} /> : null}</Plane>
@@ -227,6 +441,12 @@ export function StageScene({ scene, first, tint }: { scene: StageModel; first: b
           <Plane name="mid">{layer("mid")}</Plane>
           {/* Partículas em CSS (somem quando o canvas assume) */}
           <Motes count={scene.ambience?.motes ?? 10} />
+          {/* Destaque revelado (brilho, faíscas, aproximação, idle) */}
+          {art.feature ? (
+            <Plane name="feature">
+              <Feature feature={art.feature} />
+            </Plane>
+          ) : null}
           {/* C — canvas atmosférico */}
           {useCanvas && canvas ? (
             <BubbleCanvas sprites={spriteUrls} density={canvas.density} motes={canvas.motes} className={styles.canvas} />

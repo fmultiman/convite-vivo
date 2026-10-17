@@ -39,6 +39,7 @@ export function referencedAssetIds(event: EventConfig): Set<string> {
       ids.add(scene.background);
       scene.decor.forEach((item) => ids.add(item.asset));
       scene.canvas?.sprites.forEach((id) => ids.add(id));
+      if (scene.feature) ids.add(scene.feature.asset);
     }
     if (scene.kind === "image" || scene.kind === "video") ids.add(scene.asset);
     if (scene.kind === "reveal") scene.children.forEach(visit);

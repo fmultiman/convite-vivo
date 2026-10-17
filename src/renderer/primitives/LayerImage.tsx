@@ -5,7 +5,8 @@ import type { ReadyImage } from "../model";
 import styles from "./layer-image.module.css";
 
 /**
- * Imagem decorativa de camada (alt vazio, aria-hidden). Usa só atributos do
+ * Imagem de camada: decorativa por padrão (alt vazio, aria-hidden); com `alt` passa
+ * a ser conteúdo (ex.: o personagem revelado). Usa só atributos do
  * DOM (sem estado React): funciona também se `load`/`error` ocorrerem antes
  * da hidratação.
  */
@@ -14,11 +15,13 @@ export function LayerImage({
   className,
   priority = false,
   lazy = false,
+  alt,
 }: {
   image: ReadyImage;
   className?: string;
   priority?: boolean;
   lazy?: boolean;
+  alt?: string;
 }) {
   return (
     <Image
@@ -30,8 +33,8 @@ export function LayerImage({
       src={image.src}
       width={image.width}
       height={image.height}
-      alt=""
-      aria-hidden="true"
+      alt={alt ?? ""}
+      aria-hidden={alt ? undefined : "true"}
       unoptimized
       priority={priority}
       loading={priority ? undefined : lazy ? "lazy" : "eager"}

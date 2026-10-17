@@ -57,7 +57,7 @@ describe("contrato de evento", () => {
 
   it("exige que referências de cena apontem para assets e ações existentes", () => {
     const raw = rawMaite();
-    sceneOf(raw, "chegada").asset = "nao-existe";
+    sceneOf(raw, "chegada").feature.asset = "nao-existe";
     sceneOf(raw, "concha").children[2].actions.push("acao-fantasma");
     const issues = issuesOf(raw);
     expect(issues.some((i) => i.includes('asset "nao-existe" não existe'))).toBe(true);
@@ -66,7 +66,7 @@ describe("contrato de evento", () => {
 
   it("exige o tipo correto de asset para cada cena", () => {
     const raw = rawMaite();
-    sceneOf(raw, "chegada").asset = "teaser"; // cena de imagem apontando para vídeo
+    sceneOf(raw, "chegada").feature.asset = "teaser"; // destaque apontando para vídeo
     expect(issuesOf(raw).some((i) => i.includes("deveria ser image"))).toBe(true);
   });
 
@@ -85,7 +85,7 @@ describe("contrato de evento", () => {
 
   it("exige src e dimensões para asset aprovado", () => {
     const raw = rawMaite();
-    raw.assets["kf03-maite-cavalo-marinho"].status = "approved";
+    raw.assets["kf04-concha"].status = "approved"; // aprovado sem src
     expect(issuesOf(raw).some((i) => i.includes("precisa de src"))).toBe(true);
   });
 

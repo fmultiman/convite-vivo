@@ -18,11 +18,14 @@ export function SceneView({
   scene,
   model,
   first = false,
+  stack,
 }: {
   scene: ResolvedScene | ResolvedContentScene;
   model: ExperienceModel;
   /** Primeira cena depois da entrada (recebe a animação de chegada). */
   first?: boolean;
+  /** Palcos consecutivos formam um grupo: o mundo fica fixo e a câmera avança de um para o outro. */
+  stack?: { after: boolean; last: boolean; shareFill: boolean };
 }) {
   switch (scene.kind) {
     case "entry":
@@ -30,7 +33,7 @@ export function SceneView({
       return null;
     case "stage": {
       const entry = model.scenes.find((s) => s.kind === "entry");
-      return <StageScene scene={scene} first={first} tint={entry?.kind === "entry" ? entry.transitionTint : undefined} />;
+      return <StageScene scene={scene} first={first} stack={stack} tint={entry?.kind === "entry" ? entry.transitionTint : undefined} />;
     }
     case "reveal":
       return (

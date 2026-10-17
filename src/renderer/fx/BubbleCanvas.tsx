@@ -17,6 +17,8 @@ import {
 
 /** Atributo colocado no palco pai enquanto o canvas está ativo (CSS esconde o fallback). */
 export const CANVAS_ACTIVE_ATTR = "data-canvas";
+/** Evento disparado no palco quando o seu destaque é revelado (bolhas sobem junto). */
+export const REVEAL_EVENT = "cv-reveal";
 
 const DPR_CAP = 1.5;
 const BURST_COUNT = 18;
@@ -182,7 +184,10 @@ export function BubbleCanvas({
       ctx.globalAlpha = 1;
     };
 
-    const shouldRun = () => inView && tabVisible && entered;
+    // Em palcos consecutivos o mundo fixo de cada palco pode estar coberto/escondido: sem ver, sem desenhar.
+    const worldLive = () =>
+      !stage.hasAttribute("data-covered") && (!stage.hasAttribute("data-after-stage") || stage.hasAttribute("data-live"));
+    const shouldRun = () => inView && tabVisible && entered && worldLive();
 
     const frame = (now: number) => {
       raf = 0;
@@ -242,7 +247,12 @@ export function BubbleCanvas({
     };
     const onEnter = () => {
       entered = true;
-      bubbles = bubbles.concat(spawnBurst(cfg, rand, BURST_COUNT));
+      // A rajada do mergulho só faz sentido na primeira cena (as outras estão fora da tela).
+      if (stage.hasAttribute("data-first")) bubbles = bubbles.concat(spawnBurst(cfg, rand, BURST_COUNT));
+      sync();
+    };
+    const onReveal = () => {
+      bubbles = bubbles.concat(spawnBurst(cfg, rand, Math.round(BURST_COUNT * 0.7)));
       sync();
     };
     const onReplay = () => {
@@ -260,6 +270,9 @@ export function BubbleCanvas({
     );
     const ro = new ResizeObserver(resize);
 
+    const mo = new MutationObserver(sync);
+    mo.observe(stage, { attributes: true, attributeFilter: ["data-covered", "data-live"] });
+
     resize();
     stage.setAttribute(CANVAS_ACTIVE_ATTR, "");
     io.observe(canvas);
@@ -272,6 +285,7 @@ export function BubbleCanvas({
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener(EXPERIENCE_EVENTS.enter, onEnter);
     window.addEventListener(EXPERIENCE_EVENTS.replay, onReplay);
+    stage.addEventListener(REVEAL_EVENT, onReveal);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -279,6 +293,7 @@ export function BubbleCanvas({
       stopLoading();
       io.disconnect();
       ro.disconnect();
+      mo.disconnect();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointerup", onUp);
@@ -287,6 +302,7 @@ export function BubbleCanvas({
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener(EXPERIENCE_EVENTS.enter, onEnter);
       window.removeEventListener(EXPERIENCE_EVENTS.replay, onReplay);
+      stage.removeEventListener(REVEAL_EVENT, onReveal);
       stage.removeAttribute(CANVAS_ACTIVE_ATTR);
       canvas.width = canvas.height = 0;
     };

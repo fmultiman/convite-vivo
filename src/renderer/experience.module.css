@@ -117,3 +117,22 @@
   color: #2a1a00;
   font-weight: 700;
 }
+
+/* Grupo de palcos consecutivos: largura total e recorte (o mundo fixo de cada palco só aparece
+   dentro do grupo e sai da tela junto com ele). */
+.stageGroup {
+  position: relative;
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  clip-path: inset(0);
+  /* Fim do grupo: a base da arte se dissolve no fundo da página (sem corte seco). */
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 16dvh), transparent);
+}
+/* Grupo logo depois da entrada: ele (e não o primeiro palco) anula o padding do <main>, para que o
+   recorte do grupo comece no topo da tela. */
+.stageGroup[data-first] {
+  margin-top: calc(-1 * (4rem + env(safe-area-inset-top)));
+}
+.stageGroup[data-first] > :global([data-stage][data-first]) {
+  margin-top: 0;
+}

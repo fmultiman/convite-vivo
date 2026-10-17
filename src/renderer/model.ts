@@ -13,6 +13,7 @@ import type {
   Asset,
   ContentScene,
   DecorItem,
+  Feature,
   EventAction,
   EventConfig,
   Phase,
@@ -99,10 +100,17 @@ export interface EntryArt {
   decor: ResolvedDecor[];
 }
 
+/**
+ * Destaque já resolvido. `image` é null enquanto o asset está pendente: em prévia
+ * vira placeholder (com `label`); na versão pública o destaque é omitido.
+ */
+export type ResolvedFeature = Omit<Feature, "asset"> & { image: ReadyImage | null; label: string; alt: string };
+
 /** Palco em camadas já resolvido (cena "stage"). Só existe com o fundo pronto. */
 export interface StageArt {
   background: ReadyImage;
   decor: ResolvedDecor[];
+  feature: ResolvedFeature | null;
   /** Camada atmosférica em canvas: sprites de microbolhas (vazio = desenhadas) + densidades. */
   canvas: { sprites: ReadyImage[]; density: number; motes: number } | null;
 }
@@ -116,7 +124,7 @@ export type ResolvedScene =
       background: ResolvedAsset | null;
       art: EntryArt | null;
     })
-  | (Omit<StageConfigScene, "background" | "decor" | "canvas"> & { art: StageArt | null })
+  | (Omit<StageConfigScene, "background" | "decor" | "canvas" | "feature"> & { art: StageArt | null })
   | (Omit<Extract<Scene, { kind: "reveal" }>, "children"> & { children: ResolvedContentScene[] });
 
 export interface LifecycleInfo {
@@ -270,6 +278,8 @@ function resolveStageArt(
   backgroundId: string,
   decor: DecorItem[],
   canvas: StageConfigScene["canvas"],
+  feature: StageConfigScene["feature"],
+  mode: RenderMode,
 ): StageArt | null {
   const ready = (id: string): ReadyImage | null => {
     const asset = resolveAsset(event, id, "public");
@@ -277,8 +287,17 @@ function resolveStageArt(
   };
   const background = ready(backgroundId);
   if (!background) return null;
+  const resolveFeature = (): ResolvedFeature | null => {
+    if (!feature) return null;
+    const { asset, ...rest } = feature;
+    const resolved = resolveAsset(event, asset, mode);
+    if (resolved.ready && resolved.kind === "image") return { ...rest, image: resolved, label: "", alt: resolved.alt };
+    // Pendente: só a prévia mostra um placeholder; o público nunca vê "buracos".
+    return mode === "preview" ? { ...rest, image: null, label: resolved.ready ? "" : resolved.label, alt: "" } : null;
+  };
   return {
     background,
+    feature: resolveFeature(),
     decor: decor.flatMap((item): ResolvedDecor[] => {
       const { asset, ...rest } = item;
       const image = ready(asset);
@@ -366,8 +385,8 @@ export function resolveExperience(event: EventConfig, mode: RenderMode): Experie
         };
       }
       case "stage": {
-        const { background, decor, canvas, ...stage } = scene;
-        return { ...stage, art: resolveStageArt(event, background, decor, canvas) };
+        const { background, decor, canvas, feature, ...stage } = scene;
+        return { ...stage, art: resolveStageArt(event, background, decor, canvas, feature, mode) };
       }
       case "reveal":
         return { ...scene, children: scene.children.map(resolveContent) };

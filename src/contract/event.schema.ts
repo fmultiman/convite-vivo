@@ -292,8 +292,9 @@ export const decorItemSchema = placementSchema.extend({
   /**
    * "onOpen": só aparece quando a entrada é aberta (ex.: bolhas liberadas).
    * "withoutCanvas": versão em CSS do efeito; some quando o canvas está ativo.
+   * "onReveal": só aparece depois que a cena revela o seu destaque (ver `feature`).
    */
-  appear: z.enum(["always", "onOpen", "withoutCanvas"]).default("always"),
+  appear: z.enum(["always", "onOpen", "withoutCanvas", "onReveal"]).default("always"),
 });
 
 const entryScene = z.object({
@@ -343,6 +344,35 @@ export const fishSchema = z.object({
 });
 
 /**
+ * Destaque revelado no palco: um personagem, presente, foto ou símbolo que chega
+ * ao ambiente quando a cena entra na tela (brilho, faíscas e aproximação suave) e
+ * depois permanece em movimento idle. Reutilizável por qualquer evento: a imagem
+ * vem de um asset aprovado; enquanto pendente, a prévia mostra um placeholder e a
+ * versão pública omite o destaque.
+ */
+export const featureSchema = z.object({
+  asset: idSchema,
+  /** Posição final do centro e largura, em % do palco. */
+  x: z.number().min(-20).max(120),
+  y: z.number().min(-20).max(120),
+  width: z.number().min(5).max(100),
+  /** Onde a aproximação começa: deslocamento (% do próprio destaque) e escala inicial. */
+  from: z
+    .object({
+      x: z.number().min(-100).max(100).default(-14),
+      y: z.number().min(-100).max(100).default(12),
+      scale: z.number().min(0.2).max(1).default(0.55),
+    })
+    .default({ x: -14, y: 12, scale: 0.55 }),
+  /** Brilho que se abre atrás do destaque. */
+  glow: z.boolean().default(true),
+  /** Faíscas lançadas na revelação (0 desliga). */
+  sparkles: z.number().int().min(0).max(24).default(14),
+  /** Atraso entre a cena entrar na tela e o destaque aparecer, em segundos. */
+  delay: z.number().min(0).max(6).default(0.9),
+});
+
+/**
  * Palco em camadas (fundo + luz + decoração + peixes + bolhas CSS + canvas atmosférico
  * + texto HTML). Em primeiro plano ficam as bolhas CSS (decor plane "front"); o canvas
  * é um aprimoramento opcional que só acrescenta microbolhas e partículas sutis.
@@ -358,6 +388,16 @@ const stageScene = z.object({
   scrollHint: z.string().max(40).optional(),
   background: idSchema,
   decor: z.array(decorItemSchema).default([]),
+  /** Destaque revelado (personagem, objeto...). Opcional. */
+  feature: featureSchema.optional(),
+  /** Enquadramento do fundo ("câmera"): aproximação e ponto focal, em %. */
+  view: z
+    .object({
+      zoom: z.number().min(1).max(1.6).default(1),
+      x: z.number().min(0).max(100).default(50),
+      y: z.number().min(0).max(100).default(50),
+    })
+    .optional(),
   fish: z.array(fishSchema).max(14).default([]),
   /** Ambiência: raios de luz vindos de cima, partículas em CSS e parallax leve. */
   ambience: z
@@ -544,6 +584,7 @@ export const eventConfigSchema = z
           requireAsset(scene.background, "image", [...path, "background"]);
           scene.decor.forEach((item, i) => requireAsset(item.asset, "image", [...path, "decor", i, "asset"]));
           scene.canvas?.sprites.forEach((id, i) => requireAsset(id, "image", [...path, "canvas", "sprites", i]));
+          if (scene.feature) requireAsset(scene.feature.asset, "image", [...path, "feature", "asset"]);
           break;
         case "image":
           requireAsset(scene.asset, "image", [...path, "asset"]);
@@ -611,5 +652,6 @@ export type Motif = (typeof motifs)[number];
 export type Placement = z.output<typeof placementSchema>;
 export type DecorItem = z.output<typeof decorItemSchema>;
 export type Fish = z.output<typeof fishSchema>;
+export type Feature = z.output<typeof featureSchema>;
 export type EditorialStatus = (typeof editorialStatuses)[number];
 export type Phase = (typeof phases)[number];

@@ -42,8 +42,19 @@ describe("modelo de experiência", () => {
 
   it("assets pendentes viram placeholders; aprovados viram imagem", () => {
     const maite = resolveExperience(parsed(rawMaite()), "public");
+    const teaser = maite.scenes.find((s) => s.id === "teaser");
+    expect(teaser?.kind === "video" && teaser.asset.ready).toBe(false);
+    // A arte da Maitê está aprovada para o piloto: aparece como imagem, no público e na prévia.
     const chegada = maite.scenes.find((s) => s.id === "chegada");
-    expect(chegada?.kind === "image" && chegada.asset.ready).toBe(false);
+    expect(chegada?.kind === "stage" && chegada.art?.feature?.image?.src).toBe("/events/maite-1-ano/scene-03/maite-cavalo-marinho.webp");
+    // Se voltasse a pendente: omitido no público, placeholder só na prévia.
+    const pending = rawMaite();
+    pending.assets["kf03-maite-cavalo-marinho"].status = "pending";
+    pending.assets["kf03-maite-cavalo-marinho"].src = undefined;
+    const pub = resolveExperience(parsed(pending), "public").scenes.find((s) => s.id === "chegada");
+    expect(pub?.kind === "stage" && pub.art?.feature).toBeNull();
+    const prev = resolveExperience(parsed(pending), "preview").scenes.find((s) => s.id === "chegada");
+    expect(prev?.kind === "stage" && prev.art?.feature).toEqual(expect.objectContaining({ image: null }));
 
     const demo = resolveExperience(parsed(rawDemo()), "public");
     const historia = demo.scenes.find((s) => s.id === "historia");

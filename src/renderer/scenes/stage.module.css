@@ -16,6 +16,17 @@
 .stage[data-first] {
   margin-top: calc(-1 * (4rem + env(safe-area-inset-top)));
 }
+/* Palcos seguidos SEM JavaScript: o de baixo sobe sobre o de cima e as artes se dissolvem por
+   máscara (fallback; com JS o mundo fica fixo e a câmera avança, ver "Palcos consecutivos"). */
+:global(html:not(.js)) .stage[data-after-stage] {
+  margin-top: -16dvh;
+}
+:global(html:not(.js)) .stage[data-after-stage] .box {
+  mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent);
+}
+:global(html:not(.js)) .stage:has(+ .stage[data-after-stage]) .hint {
+  bottom: calc(16dvh + 1rem + env(safe-area-inset-bottom));
+}
 .plain {
   display: flex;
   flex-direction: column;
@@ -38,38 +49,67 @@
 .world {
   position: absolute;
   inset: 0;
-  /* Unidades cqw dos peixes (travessia do palco). */
-  container-type: size;
 }
 
 /* ---------- Planos de profundidade ----------
-   Cada plano é uma camada própria: deriva lenta (transform, só CSS) e parallax do mouse
-   (propriedade translate, comandada por --px/--py). Quanto mais perto, mais se move. */
+   Cada plano são DUAS camadas, de propósito:
+     .plane  parallax do mouse (propriedade translate, via --px/--py) e câmera (scale);
+     .drift  deriva lenta (animação de transform, só CSS), dentro dele.
+   Medido: animar transform num elemento que também tem a propriedade translate (ou dentro de um
+   container-type) tira a animação do compositor e força recálculo de estilo a cada quadro.
+   Separadas, a deriva roda no compositor. Quanto mais perto, mais o plano se move. */
 .plane {
   position: absolute;
   inset: 0;
   pointer-events: none;
   translate: calc(var(--px, 0) * var(--k, 0) * -1px) calc(var(--py, 0) * var(--k, 0) * -0.6px);
 }
+.drift {
+  position: absolute;
+  inset: 0;
+}
 .plane[data-layer="bg"] {
   --k: 3;
   inset: -1.5%;
+  /* Enquadramento (view): zoom e ponto focal. Ao revelar o destaque a câmera avança um pouco. */
+  scale: var(--zoom, 1);
+  transform-origin: var(--vx, 50%) var(--vy, 50%);
+  transition: scale 4.5s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+.plane[data-layer="bg"] > .drift {
   animation: drift-bg 26s ease-in-out infinite alternate;
+}
+.stage[data-revealed] .plane[data-layer="bg"] {
+  scale: calc(var(--zoom, 1) * 1.05);
+}
+.plane[data-layer="feature"] {
+  --k: 12;
+}
+.plane[data-layer="feature"] > .drift {
+  animation: drift-mid 20s ease-in-out -5s infinite alternate;
 }
 .plane[data-layer="far"] {
   --k: 6;
+}
+.plane[data-layer="far"] > .drift {
   animation: drift-far 22s ease-in-out -4s infinite alternate;
 }
 .plane[data-layer="mid"] {
   --k: 10;
+}
+.plane[data-layer="mid"] > .drift {
   animation: drift-mid 18s ease-in-out -9s infinite alternate;
 }
 .plane[data-layer="near"] {
   --k: 18;
+}
+.plane[data-layer="near"] > .drift {
   animation: drift-near 15s ease-in-out -2s infinite alternate;
 }
 .plane[data-layer="front"] {
   --k: 13;
+}
+.plane[data-layer="front"] > .drift {
   animation: drift-front 17s ease-in-out -6s infinite alternate;
 }
 .fill {
@@ -95,6 +135,11 @@
       linear-gradient(to bottom, #000 84%, transparent);
     mask-composite: intersect;
   }
+  :global(html:not(.js)) .stage[data-after-stage] .box {
+    mask-image:
+      linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+      linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent);
+  }
 }
 
 .bg {
@@ -116,6 +161,11 @@
   overflow: hidden;
   pointer-events: none;
   opacity: var(--light, 0.6);
+  transition: opacity 2.2s ease;
+}
+/* O ambiente ganha um brilho especial quando o destaque é revelado. */
+.stage[data-revealed] .light {
+  opacity: min(1, calc(var(--light, 0.6) * 1.45));
 }
 .surface {
   position: absolute;
@@ -248,6 +298,12 @@
   animation: ascend var(--dur, 16s) linear var(--delay) infinite;
 }
 
+/* Bolhas da surpresa: só existem depois da revelação. */
+.stage:not([data-revealed]) .item[data-appear="onReveal"] .mover {
+  animation: none;
+  opacity: 0;
+}
+
 /* O canvas assume as bolhas: some o fallback em CSS. */
 .stage[data-canvas] .item[data-appear="withoutCanvas"] {
   display: none;
@@ -264,6 +320,9 @@
 .text {
   position: absolute;
   inset: 0 0 auto;
+  /* Em telas largas o texto fica na coluna da arte (o halo não vira uma faixa nas laterais). */
+  max-width: min(100%, 36rem);
+  margin-inline: auto;
   z-index: 3;
   display: flex;
   flex-direction: column;
@@ -272,8 +331,16 @@
   padding: calc(1.7rem + env(safe-area-inset-top)) 1.5rem 3.2rem;
   color: var(--cv-text);
   text-align: center;
-  background: radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.7) 0%, rgb(255 255 255 / 0.36) 55%, transparent 80%);
+  /* Halo elíptico que cabe na caixa: dissolve nas laterais e na base (nunca mostra a borda da caixa). */
+  background: radial-gradient(ellipse 52% 100% at 50% 0%, rgb(255 255 255 / 0.74) 0%, rgb(255 255 255 / 0.4) 55%, transparent 100%);
   pointer-events: none;
+}
+/* Cenas com destaque: a luz da revelação clareia o topo, então o texto ganha mais apoio.
+   O halo é uma elipse centrada no texto que se dissolve em todas as bordas: o texto também
+   rola sobre o mundo fixo e não pode mostrar a borda de uma caixa. */
+.stage[data-has-feature] .text,
+.stage[data-after-stage] .text {
+  background: radial-gradient(ellipse closest-side at 50% 50%, rgb(255 255 255 / 0.82) 0%, rgb(255 255 255 / 0.55) 55%, transparent 100%);
 }
 .plain .text {
   position: static;
@@ -333,6 +400,211 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   animation: nudge 1.8s ease-in-out infinite;
+}
+
+/* ---------- Destaque revelado (personagem/objeto) ----------
+   Estado final é o padrão (sem JS tudo aparece). Com JS, antes da revelação o destaque
+   está recolhido (longe, pequeno, transparente) e TRANSITA para o estado final quando o
+   palco recebe data-revealed: translate/scale/rotate/opacity, todos no compositor.
+   Os pontos de partida vêm da configuração (--fx/--fy/--fs). */
+.feature {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: calc(var(--w) * 1%);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+.approach {
+  translate: 0 0;
+  scale: 1;
+  rotate: 0deg;
+  opacity: 1;
+  transition:
+    translate 3.4s cubic-bezier(0.16, 0.68, 0.2, 1) var(--fdelay, 0.9s),
+    scale 3.4s cubic-bezier(0.16, 0.68, 0.2, 1) var(--fdelay, 0.9s),
+    rotate 3.4s cubic-bezier(0.16, 0.68, 0.2, 1) var(--fdelay, 0.9s),
+    opacity 1.6s ease var(--fdelay, 0.9s);
+}
+:global(.js) .stage[data-has-feature]:not([data-revealed]) .approach {
+  translate: calc(var(--fx) * 1%) calc(var(--fy) * 1%);
+  scale: var(--fs);
+  rotate: -5deg;
+  opacity: 0;
+}
+/* Depois de chegar, o destaque flutua discretamente. */
+.idle {
+  animation: idle 5.6s ease-in-out infinite alternate;
+}
+.featureImg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 1.2vh 1.6vh rgb(30 60 120 / 0.28));
+}
+.featurePlaceholder {
+  border-radius: 48% 48% 42% 42%;
+}
+
+/* Brilho que se abre atrás do destaque e depois respira. */
+.glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.85), rgb(255 228 250 / 0.48) 46%, rgb(220 240 255 / 0.16) 70%, transparent 100%);
+  opacity: 0;
+  scale: 0.55;
+}
+.stage[data-revealed] .glow {
+  animation:
+    bloom 2.8s ease-out both,
+    breathe 6.5s ease-in-out 2.8s infinite alternate;
+}
+:global(html:not(.js)) .glow {
+  opacity: 0.55;
+  scale: 1;
+}
+
+/* Faíscas: partem do centro e se espalham uma vez. Alcance s/m/l em % da própria faísca (sem unidades de container, que tiram a animação do compositor). */
+.sparks {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+.sparks span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  rotate: calc(var(--a) * 1deg);
+}
+.sparks span::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--s) / -2);
+  top: calc(var(--s) / -2);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff, rgb(255 236 250 / 0.7) 40%, transparent 72%);
+  opacity: 0;
+}
+.stage[data-revealed] .sparks span[data-reach="s"]::after {
+  animation: fly-s 2.2s ease-out calc(var(--t) + var(--fdelay, 0.9s) * 0.5) both;
+}
+.stage[data-revealed] .sparks span[data-reach="m"]::after {
+  animation: fly-m 2.6s ease-out calc(var(--t) + var(--fdelay, 0.9s) * 0.5) both;
+}
+.stage[data-revealed] .sparks span[data-reach="l"]::after {
+  animation: fly-l 3s ease-out calc(var(--t) + var(--fdelay, 0.9s) * 0.5) both;
+}
+
+/* O texto da cena chega depois do destaque (e não antes de a cena entrar na tela). */
+.stage[data-has-feature] .text,
+.stage[data-has-feature] .hint {
+  transition:
+    opacity 1.4s ease 1.6s,
+    translate 1.4s ease 1.6s;
+}
+:global(.js) .stage[data-has-feature]:not([data-revealed]) .text,
+:global(.js) .stage[data-has-feature]:not([data-revealed]) .hint {
+  opacity: 0;
+  translate: 0 10px;
+}
+
+/* ---------- Palcos consecutivos: um mundo só, a câmera avança ----------
+   Dois palcos seguidos NÃO são duas telas empilhadas. Com JS, o mundo (fundo, luz, planos,
+   peixes, canvas) de cada palco fica FIXO na tela dentro do grupo (o grupo recorta com
+   clip-path) e só o texto rola. O palco seguinte entra por DISSOLUÇÃO DE QUADRO INTEIRO
+   (opacity, sem borda horizontal) quando o seu topo cruza 65 % da tela, e os planos avançam
+   (scale) em ritmos diferentes: a câmera caminha para dentro do mesmo mundo. Como o segundo
+   palco repete a decoração do primeiro, a dissolução é imperceptível; só a câmera, o brilho e
+   o destaque são novos. Tudo por tempo (transições), nada atrelado à posição da rolagem. */
+:global(.js) .stage[data-grouped] .box,
+:global(.js) .stage[data-grouped] .fill {
+  position: fixed;
+  pointer-events: none;
+}
+:global(.js) .stage[data-grouped] {
+  overflow: visible; /* o mundo fixo não pode ser recortado à caixa da seção */
+}
+:global(.js) .stage[data-grouped] .box {
+  mask-image: none;
+}
+@media (min-aspect-ratio: 7/10) {
+  :global(.js) .stage[data-grouped] .box {
+    mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  }
+}
+/* O fim do grupo se dissolve no fundo da página (máscara no .stageGroup, em experience.module.css).
+   Atenção: NÃO colocar máscara/overflow no próprio palco: ela recortaria o mundo fixo à caixa
+   da seção e recriaria a emenda horizontal. */
+/* Mundo do segundo palco: aparece por dissolução (opacity) e, fora de cena, é display: none.
+   Medido: um mundo só escondido (visibility/opacity) custa quase tanto quanto um visível, porque
+   sem camada composta as animações vão para a thread principal; display: none não custa nada.
+   Ao voltar, o JS ressincroniza as animações com as do mundo visível (syncWorld). */
+:global(.js) .stage[data-grouped][data-after-stage] .box,
+:global(.js) .stage[data-grouped][data-after-stage] .fill {
+  transition: opacity 1.8s ease;
+}
+:global(.js) .stage[data-grouped][data-after-stage]:not([data-entered]) .box,
+:global(.js) .stage[data-grouped][data-after-stage]:not([data-entered]) .fill {
+  opacity: 0;
+}
+:global(.js) .stage[data-grouped][data-after-stage]:not([data-live]) .box {
+  display: none;
+}
+/* O segundo palco já cobriu o primeiro: o mundo de baixo não é renderizado. */
+:global(.js) .stage[data-grouped][data-covered] .box {
+  display: none;
+}
+/* Fundo desfocado das laterais: o primeiro palco já o desenha (mesma arte, fixo). */
+:global(.js) .stage[data-share-fill] .fill {
+  display: none;
+}
+/* Sentinela no topo do palco: avisa quando ele entra (IntersectionObserver). */
+/* Faixa de 1 px com a LARGURA TOTAL do palco: com barra de rolagem clássica, 100vw é mais largo
+   que a janela e o palco de largura total começa fora dela (x negativo); um sentinela de 1 px em
+   left: 0 ficava fora da tela e o IntersectionObserver nunca o via. */
+.sentinel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Câmera: o segundo palco começa no mesmo enquadramento do primeiro e avança ao entrar. */
+:global(.js) .stage[data-grouped][data-after-stage] .plane[data-layer="bg"] {
+  scale: 1;
+}
+:global(.js) .stage[data-grouped][data-after-stage][data-entered] .plane[data-layer="bg"] {
+  scale: calc(var(--zoom, 1) * 1.05);
+}
+:global(.js) .stage[data-grouped][data-after-stage] .plane:is([data-layer="far"], [data-layer="mid"], [data-layer="near"], [data-layer="front"]) {
+  scale: 1;
+  transform-origin: var(--vx, 50%) var(--vy, 50%);
+  transition: scale 4.5s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+:global(.js) .stage[data-grouped][data-after-stage][data-entered] .plane[data-layer="far"] {
+  scale: 1.04;
+}
+:global(.js) .stage[data-grouped][data-after-stage][data-entered] .plane[data-layer="mid"] {
+  scale: 1.07;
+}
+:global(.js) .stage[data-grouped][data-after-stage][data-entered] .plane[data-layer="front"] {
+  scale: 1.1;
+}
+:global(.js) .stage[data-grouped][data-after-stage][data-entered] .plane[data-layer="near"] {
+  scale: 1.13;
 }
 
 /* ---------- Haze da chegada (continua o véu do mergulho) ---------- */
@@ -450,6 +722,69 @@ html[data-cv-phase]:not([data-cv-phase="closed"]) .stage[data-first] .hint {
     transform: translate3d(2.5vw, 22vh, 0);
   }
 }
+@keyframes bloom {
+  0% {
+    opacity: 0;
+    scale: 0.55;
+  }
+  45% {
+    opacity: 1;
+    scale: 1.1;
+  }
+  100% {
+    opacity: 0.62;
+    scale: 1;
+  }
+}
+@keyframes breathe {
+  from {
+    opacity: 0.52;
+    scale: 0.98;
+  }
+  to {
+    opacity: 0.74;
+    scale: 1.06;
+  }
+}
+@keyframes fly-s {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.3);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-1500%) scale(1.1);
+  }
+}
+@keyframes fly-m {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.3);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2100%) scale(1.1);
+  }
+}
+@keyframes fly-l {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.3);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2900%) scale(1.1);
+  }
+}
 @keyframes drift-bg {
   from {
     transform: translate3d(-0.5%, 0.2%, 0);
@@ -492,10 +827,10 @@ html[data-cv-phase]:not([data-cv-phase="closed"]) .stage[data-first] .hint {
 }
 @keyframes idle {
   0% {
-    transform: translate3d(0, 1.1vh, 0) rotate(-1.6deg);
+    transform: translate3d(0, 0.9vh, 0) rotate(-1.3deg);
   }
   100% {
-    transform: translate3d(0.4vw, -1.3vh, 0) rotate(1.8deg);
+    transform: translate3d(0.3vw, -0.9vh, 0) rotate(1.4deg);
   }
 }
 @keyframes float {
@@ -552,13 +887,63 @@ html[data-cv-phase]:not([data-cv-phase="closed"]) .stage[data-first] .hint {
   .ray,
   .caustics,
   .motes span,
-  .plane,
+  .drift,
   .mover[data-motion],
   .hint svg {
     animation: none !important;
   }
   .plane {
     translate: none;
+  }
+  /* Destaque: já pronto, sem aproximação, idle, faíscas ou brilho pulsando. */
+  .plane[data-layer="bg"],
+  .stage[data-revealed] .plane[data-layer="bg"] {
+    scale: var(--zoom, 1);
+    transition: none;
+  }
+  .approach,
+  :global(.js) .stage[data-has-feature]:not([data-revealed]) .approach {
+    translate: 0 0 !important;
+    scale: 1 !important;
+    rotate: 0deg !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  .stage[data-has-feature] .text,
+  .stage[data-has-feature] .hint,
+  :global(.js) .stage[data-has-feature]:not([data-revealed]) .text,
+  :global(.js) .stage[data-has-feature]:not([data-revealed]) .hint {
+    opacity: 1 !important;
+    translate: none !important;
+    transition: none !important;
+  }
+  .idle,
+  .stage[data-revealed] .glow {
+    animation: none !important;
+  }
+  .glow {
+    opacity: 0.5;
+    scale: 1;
+  }
+  .sparks {
+    display: none;
+  }
+  .light,
+  .stage[data-revealed] .light {
+    transition: none;
+  }
+  /* Palcos consecutivos: troca de mundo imediata e sem avanço de câmera. */
+  :global(.js) .stage[data-grouped][data-after-stage] .box,
+  :global(.js) .stage[data-grouped][data-after-stage] .fill,
+  :global(.js) .stage[data-grouped][data-after-stage] .plane {
+    transition: none !important;
+  }
+  :global(.js) .stage[data-grouped][data-after-stage] .plane[data-layer],
+  :global(.js) .stage[data-grouped][data-after-stage][data-entered] .plane[data-layer] {
+    scale: var(--zoom-rm, 1) !important;
+  }
+  :global(.js) .stage[data-grouped][data-after-stage][data-entered] .plane[data-layer="bg"] {
+    scale: var(--zoom, 1) !important;
   }
   /* Luz e partículas ficam estáticas, em um estado agradável (sem piscar). */
   .ray {
