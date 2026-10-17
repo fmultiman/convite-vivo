@@ -124,7 +124,11 @@ export type ResolvedScene =
       background: ResolvedAsset | null;
       art: EntryArt | null;
     })
-  | (Omit<StageConfigScene, "background" | "decor" | "canvas" | "feature"> & { art: StageArt | null })
+  | (Omit<StageConfigScene, "background" | "decor" | "canvas" | "feature" | "panel"> & {
+      art: StageArt | null;
+      /** Painel revelado por botão (conteúdo aninhado já resolvido) e a moldura, se aprovada. */
+      panel: { prompt: string; frame: ReadyImage | null; children: ResolvedContentScene[] } | null;
+    })
   | (Omit<Extract<Scene, { kind: "reveal" }>, "children"> & { children: ResolvedContentScene[] });
 
 export interface LifecycleInfo {
@@ -311,9 +315,14 @@ function resolveStageArt(
 
 function findGiftsSceneId(scenes: (Scene | ContentScene)[]): string | null {
   for (const scene of scenes) {
+    if (scene.enabled === false) continue;
     if (scene.kind === "gifts") return scene.id;
     if (scene.kind === "reveal") {
       const nested = findGiftsSceneId(scene.children);
+      if (nested) return nested;
+    }
+    if (scene.kind === "stage" && scene.panel) {
+      const nested = findGiftsSceneId(scene.panel.children);
       if (nested) return nested;
     }
   }
@@ -374,7 +383,7 @@ export function resolveExperience(event: EventConfig, mode: RenderMode): Experie
     }
   };
 
-  const scenes = event.scenes.map((scene): ResolvedScene => {
+  const scenes = event.scenes.filter((scene) => scene.enabled).map((scene): ResolvedScene => {
     switch (scene.kind) {
       case "entry": {
         const { motifAsset, openAsset, tagAsset, decor, ...entry } = scene;
@@ -385,11 +394,22 @@ export function resolveExperience(event: EventConfig, mode: RenderMode): Experie
         };
       }
       case "stage": {
-        const { background, decor, canvas, feature, ...stage } = scene;
-        return { ...stage, art: resolveStageArt(event, background, decor, canvas, feature, mode) };
+        const { background, decor, canvas, feature, panel, ...stage } = scene;
+        const frame = panel?.frame ? resolveAsset(event, panel.frame, "public") : null;
+        return {
+          ...stage,
+          art: resolveStageArt(event, background, decor, canvas, feature, mode),
+          panel: panel
+            ? {
+                prompt: panel.prompt,
+                frame: frame && frame.ready && frame.kind === "image" ? frame : null,
+                children: panel.children.filter((c) => c.enabled).map(resolveContent),
+              }
+            : null,
+        };
       }
       case "reveal":
-        return { ...scene, children: scene.children.map(resolveContent) };
+        return { ...scene, children: scene.children.filter((c) => c.enabled).map(resolveContent) };
       default:
         return resolveContent(scene);
     }

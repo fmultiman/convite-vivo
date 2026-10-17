@@ -206,10 +206,10 @@ function syncWorld(from: Element | null, to: Element | null) {
 }
 
 /** Faíscas da revelação: saem do centro do destaque em todas as direções, uma vez. */
-function Sparkles({ count }: { count: number }) {
+function Sparkles({ count, on = "reveal" }: { count: number; on?: "reveal" | "open" }) {
   if (count <= 0) return null;
   return (
-    <div className={styles.sparks} aria-hidden="true">
+    <div className={styles.sparks} data-on={on} aria-hidden="true">
       {Array.from({ length: count }, (_, i) => (
         <span
           key={i}
@@ -227,8 +227,12 @@ function Sparkles({ count }: { count: number }) {
   );
 }
 
-/** O destaque da cena: brilho + faíscas + aproximação + idle. Imagem aprovada ou placeholder (prévia). */
-function Feature({ feature }: { feature: ResolvedFeature }) {
+/**
+ * O destaque da cena: brilho + faíscas + aproximação + idle. Imagem aprovada ou placeholder (prévia).
+ * Em cena com painel (`onActivate`), o próprio destaque também aceita o toque (conveniência para
+ * mouse/dedo; o botão de verdade, acessível por teclado, fica na interface HTML).
+ */
+function Feature({ feature, withPanel = false, onActivate }: { feature: ResolvedFeature; withPanel?: boolean; onActivate?: () => void }) {
   const style = {
     "--x": feature.x,
     "--y": feature.y,
@@ -239,9 +243,10 @@ function Feature({ feature }: { feature: ResolvedFeature }) {
     "--fdelay": `${feature.delay}s`,
   } as CSSProperties;
   return (
-    <div className={styles.feature} style={style} data-feature>
+    <div className={styles.feature} style={style} data-feature data-tap={onActivate ? "" : undefined} onClick={onActivate}>
       {feature.glow ? <div className={styles.glow} aria-hidden="true" /> : null}
       <Sparkles count={feature.sparkles} />
+      {withPanel ? <Sparkles count={Math.max(feature.sparkles, 16)} on="open" /> : null}
       <div className={styles.approach}>
         <div className={styles.idle}>
           {feature.image ? (
@@ -249,6 +254,7 @@ function Feature({ feature }: { feature: ResolvedFeature }) {
           ) : (
             <AssetPlaceholder label={feature.label} width={7} height={10} className={styles.featurePlaceholder} />
           )}
+          {withPanel ? <span className={styles.pearl} aria-hidden="true" /> : null}
         </div>
       </div>
     </div>
@@ -349,9 +355,12 @@ export function StageScene({
   first,
   stack,
   tint,
+  panel,
 }: {
   scene: StageModel;
   first: boolean;
+  /** Conteúdo do painel (cenas aninhadas), já renderizado pelo SceneView. */
+  panel?: ReactNode;
   /** Presente quando o palco faz parte de um grupo de palcos consecutivos. */
   stack?: { after: boolean; last: boolean; shareFill: boolean };
   tint?: string;
@@ -377,6 +386,28 @@ export function StageScene({
   const spriteUrls = useMemo(() => canvas?.sprites.map((s) => s.src) ?? [], [canvas]);
   const useCanvas = Boolean(canvas) && fx === "canvas" && !reduced;
   const stageRef = useRef<HTMLElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const panelId = `${scene.id}-panel`;
+
+  // "Rever o convite" fecha o painel de novo.
+  useEffect(() => {
+    const close = () => setOpen(false);
+    window.addEventListener(EXPERIENCE_EVENTS.replay, close);
+    return () => window.removeEventListener(EXPERIENCE_EVENTS.replay, close);
+  }, []);
+
+  const openPanel = () => {
+    if (open) return;
+    setOpen(true);
+    stageRef.current?.dispatchEvent(new CustomEvent(REVEAL_EVENT)); // as bolhas do canvas sobem junto
+    requestAnimationFrame(() => {
+      const el = panelRef.current;
+      el?.focus({ preventScroll: true });
+      // Dá um instante para a abertura ser vista e então leva o convite à tela.
+      window.setTimeout(() => el?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }), reduced ? 0 : 750);
+    });
+  };
   useStageParallax(stageRef, (scene.ambience?.parallax ?? true) && !reduced);
   useReveal(stageRef, Boolean(art?.feature), Boolean(art?.feature || stack?.after), reduced);
   const titleId = scene.headline ? `${scene.id}-title` : undefined;
@@ -398,6 +429,11 @@ export function StageScene({
     return (
       <section id={scene.id} className={styles.plain} aria-labelledby={titleId}>
         {text}
+        {scene.panel ? (
+          <div id={`${scene.id}-panel`} className={styles.panel} data-plain>
+            {panel}
+          </div>
+        ) : null}
       </section>
     );
   }
@@ -421,9 +457,21 @@ export function StageScene({
     "--vy": `${scene.view?.y ?? 50}%`,
   } as CSSProperties;
 
-  return (
-    <section ref={stageRef} id={scene.id} className={styles.stage} style={stageStyle} data-stage data-first={first || undefined} data-grouped={stack ? "" : undefined} data-after-stage={stack?.after || undefined} data-group-last={stack?.last || undefined} data-share-fill={stack?.shareFill || undefined} data-has-feature={art.feature ? "" : undefined} aria-labelledby={titleId}>
-      {art.feature || stack?.after ? <span className={styles.sentinel} data-sentinel aria-hidden="true" /> : null}
+  // O primeiro bloco do painel (o convite) vai dentro da moldura; os demais seguem soltos.
+  const panelItems = Array.isArray(panel) ? panel : panel ? [panel] : [];
+  const framedPanel =
+    scene.panel?.frame && panelItems.length > 0
+      ? [
+          <div key="frame" className={styles.frame}>
+            <div className={styles.frameArt} aria-hidden="true" />
+            <div className={styles.frameBody}>{panelItems[0]}</div>
+          </div>,
+          ...panelItems.slice(1),
+        ]
+      : panel;
+
+  const screen = (
+    <>
       {/* Telas largas: o mesmo fundo desfocado preenche as laterais da coluna central. */}
       <div className={styles.fill} aria-hidden="true">
         {armed ? <LayerImage image={art.background} className={styles.fillImg} lazy /> : null}
@@ -444,7 +492,7 @@ export function StageScene({
           {/* Destaque revelado (brilho, faíscas, aproximação, idle) */}
           {art.feature ? (
             <Plane name="feature">
-              <Feature feature={art.feature} />
+              <Feature feature={art.feature} withPanel={Boolean(scene.panel)} onActivate={scene.panel && !open ? openPanel : undefined} />
             </Plane>
           ) : null}
           {/* C — canvas atmosférico */}
@@ -462,6 +510,13 @@ export function StageScene({
 
       {/* E — interface HTML */}
       {text}
+      {scene.panel ? (
+        <div className={styles.gate}>
+          <button type="button" className={styles.gateBtn} onClick={openPanel} aria-expanded={open} aria-controls={panelId} disabled={open}>
+            {scene.panel.prompt}
+          </button>
+        </div>
+      ) : null}
       {scene.scrollHint ? (
         <p className={styles.hint}>
           <span>{scene.scrollHint}</span>
@@ -469,6 +524,40 @@ export function StageScene({
             <path d="M6 9l6 6 6-6" />
           </svg>
         </p>
+      ) : null}
+    </>
+  );
+
+  return (
+    <section
+      ref={stageRef}
+      id={scene.id}
+      className={styles.stage}
+      style={stageStyle}
+      data-stage
+      data-first={first || undefined}
+      data-grouped={stack ? "" : undefined}
+      data-after-stage={stack?.after || undefined}
+      data-group-last={stack?.last || undefined}
+      data-share-fill={stack?.shareFill || undefined}
+      data-has-feature={art.feature ? "" : undefined}
+      data-has-panel={scene.panel ? "" : undefined}
+      data-open={open || undefined}
+      aria-labelledby={titleId}
+    >
+      {art.feature || stack?.after ? <span className={styles.sentinel} data-sentinel aria-hidden="true" /> : null}
+      {scene.panel ? <div className={styles.screen}>{screen}</div> : screen}
+      {scene.panel ? (
+        <div
+          id={panelId}
+          ref={panelRef}
+          tabIndex={-1}
+          className={styles.panel}
+          data-framed={scene.panel.frame ? "" : undefined}
+          style={scene.panel.frame ? ({ "--frame": `url(${scene.panel.frame.src})` } as CSSProperties) : undefined}
+        >
+          {framedPanel}
+        </div>
       ) : null}
     </section>
   );

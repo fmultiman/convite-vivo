@@ -37,6 +37,7 @@ npm run dev            # http://localhost:3000 (prévia de rascunhos ligada)
 | `npm run schema` | Regenera `content/event.schema.json` a partir do contrato |
 | `npm run assets:scene-01` | Regenera os WebP da Cena 1 a partir de `assets/` (privado, fora do git). Os WebP resultantes **são versionados** |
 | `npm run assets:scene-02` | Regenera os 12 WebP da cena submarina; reutiliza bolhas e pérolas da Cena 1 |
+| `npm run assets:scene-04` | Regenera os 4 WebP da Cena 04 (BG03, grande concha, moldura e divisor); sem a criança |
 | `npm run assets:scene-03-private` | Regenera o derivado da Maitê no cavalo-marinho em `assets/_prepared/` (fora do Git); a cópia autorizada para o piloto está em `public/events/maite-1-ano/scene-03/` |
 | `npm run smoke -- <url> [--preview]` | Smoke HTTP contra um servidor rodando (status, OG, headers) |
 
@@ -84,6 +85,7 @@ não referencia eventos específicos.
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — decisões técnicas e porquês
 - [docs/SCENE_02.md](docs/SCENE_02.md) — experimento submarino V1, comparação CSS/Canvas, evidências e limites da validação
+- [docs/SCENE_04.md](docs/SCENE_04.md) — Cena 04 (grande concha e convite): palco com painel, assets, pendências e validação
 - [docs/SCENE_03.md](docs/SCENE_03.md) — Cena 03 (revelação da Maitê real): enquadramento, mundo contínuo entre palcos, exceção de segurança restrita ao asset autorizado
 - [docs/SCENE_02_V2.md](docs/SCENE_02_V2.md) — Cena 02 v2 (híbrida): luz, peixes, plantas, camadas e preparação da Cena 03
 - [docs/ASSETS.md](docs/ASSETS.md) — como integrar os assets reais da Maitê

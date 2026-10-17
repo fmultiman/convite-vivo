@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatClockTime, formatEventDate, resolveExperience } from "@/renderer/model";
-import { parsed, rawDemo, rawMaite } from "./helpers";
+import { CANDIDATOS_FICTICIOS, parsed, rawDemo, rawMaite, rawMaiteComCandidatos } from "./helpers";
 
 describe("modelo de experiência", () => {
   it("formata data e horário em pt-BR", () => {
@@ -10,29 +10,33 @@ describe("modelo de experiência", () => {
   });
 
   it("modo público remove valores não confirmados, notas internas e rótulos de produção", () => {
-    const model = resolveExperience(parsed(rawMaite()), "public");
+    const model = resolveExperience(parsed(rawMaiteComCandidatos()), "public");
     const serialized = JSON.stringify(model);
     expect(model.details.time).toBeNull();
     expect(model.details.venueAddress).toBeNull();
     expect(serialized).not.toContain("13h");
     expect(serialized).not.toContain("A-013");
     expect(serialized).not.toContain("KF-03");
-    expect(serialized).not.toContain("Roupa tamanho");
+    expect(serialized).not.toContain("Rua Exemplo");
+    expect(serialized).not.toContain("Presente exemplo");
   });
 
   it("modo público não oferece ações pendentes", () => {
     const model = resolveExperience(parsed(rawMaite()), "public");
-    const reveal = model.scenes.find((s) => s.kind === "reveal");
-    const actions = reveal?.kind === "reveal" ? reveal.children.find((c) => c.kind === "actions") : undefined;
+    const concha = model.scenes.find((s) => s.id === "concha");
+    const actions = concha?.kind === "stage" ? concha.panel?.children.find((c) => c.kind === "actions") : undefined;
     expect(actions?.kind === "actions" && actions.actions).toEqual([]);
   });
 
   it("prévia mostra candidatos marcados como pendentes", () => {
-    const model = resolveExperience(parsed(rawMaite()), "preview");
-    expect(model.details.time).toEqual(expect.objectContaining({ state: "pending", candidate: null }));
+    const model = resolveExperience(parsed(rawMaiteComCandidatos()), "preview");
+    // Horário e endereço candidatos (ainda sem confirmação): aparecem na prévia como pendentes.
+    expect(model.details.time).toEqual(expect.objectContaining({ state: "pending", candidate: "13h" }));
+    expect(model.details.venueAddress).toEqual(expect.objectContaining({ state: "pending", candidate: CANDIDATOS_FICTICIOS.endereco }));
+    expect(model.details.venueName).toEqual(expect.objectContaining({ state: "pending", candidate: null })); // o nome do local não foi informado
     expect(model.issues.some((i) => i.severity === "blocker")).toBe(true);
-    const reveal = model.scenes.find((s) => s.kind === "reveal");
-    const actions = reveal?.kind === "reveal" ? reveal.children.find((c) => c.kind === "actions") : undefined;
+    const concha = model.scenes.find((s) => s.id === "concha");
+    const actions = concha?.kind === "stage" ? concha.panel?.children.find((c) => c.kind === "actions") : undefined;
     expect(actions?.kind === "actions" && actions.actions.map((a) => [a.id, a.pending])).toEqual([
       ["confirmar", true],
       ["mapa", true],
@@ -90,8 +94,8 @@ describe("modelo de experiência", () => {
     raw.actions[2].confirmed = true;
     raw.gifts.items[0].confirmed = true;
     const model = resolveExperience(parsed(raw), "public");
-    const reveal = model.scenes.find((s) => s.kind === "reveal");
-    const actions = reveal?.kind === "reveal" ? reveal.children.find((c) => c.kind === "actions") : undefined;
+    const concha = model.scenes.find((s) => s.id === "concha");
+    const actions = concha?.kind === "stage" ? concha.panel?.children.find((c) => c.kind === "actions") : undefined;
     expect(actions?.kind === "actions" && actions.actions[0]).toEqual(
       expect.objectContaining({ id: "presentes", href: "#presentes", external: false }),
     );
@@ -101,8 +105,8 @@ describe("modelo de experiência", () => {
     const raw = rawMaite();
     raw.actions[2].confirmed = true;
     const model = resolveExperience(parsed(raw), "public");
-    const reveal = model.scenes.find((s) => s.kind === "reveal");
-    const actions = reveal?.kind === "reveal" ? reveal.children.find((c) => c.kind === "actions") : undefined;
+    const concha = model.scenes.find((s) => s.id === "concha");
+    const actions = concha?.kind === "stage" ? concha.panel?.children.find((c) => c.kind === "actions") : undefined;
     expect(actions?.kind === "actions" && actions.actions).toEqual([]);
   });
 });

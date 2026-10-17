@@ -16,20 +16,29 @@ export interface PublicationIssue {
 export function referencedActionIds(scenes: Scene[]): Set<string> {
   const ids = new Set<string>();
   const visit = (scene: Scene | ContentScene) => {
+    if (scene.enabled === false) return;
     if (scene.kind === "actions") scene.actions.forEach((id) => ids.add(id));
     if (scene.kind === "reveal") scene.children.forEach(visit);
+    if (scene.kind === "stage") scene.panel?.children.forEach(visit);
   };
   scenes.forEach(visit);
   return ids;
 }
 
 function hasScene(scenes: (Scene | ContentScene)[], kind: Scene["kind"]): boolean {
-  return scenes.some((scene) => scene.kind === kind || (scene.kind === "reveal" && hasScene(scene.children, kind)));
+  return scenes.some(
+    (scene) =>
+      scene.enabled !== false &&
+      (scene.kind === kind ||
+      (scene.kind === "reveal" && hasScene(scene.children, kind)) ||
+      (scene.kind === "stage" && Boolean(scene.panel) && hasScene(scene.panel!.children, kind))),
+  );
 }
 
 export function referencedAssetIds(event: EventConfig): Set<string> {
   const ids = new Set<string>();
   const visit = (scene: Scene | ContentScene) => {
+    if (scene.enabled === false) return;
     if (scene.kind === "entry") {
       if (scene.background) ids.add(scene.background);
       for (const id of [scene.motifAsset, scene.openAsset, scene.tagAsset]) if (id) ids.add(id);
@@ -40,6 +49,8 @@ export function referencedAssetIds(event: EventConfig): Set<string> {
       scene.decor.forEach((item) => ids.add(item.asset));
       scene.canvas?.sprites.forEach((id) => ids.add(id));
       if (scene.feature) ids.add(scene.feature.asset);
+      if (scene.panel?.frame) ids.add(scene.panel.frame);
+      scene.panel?.children.forEach(visit);
     }
     if (scene.kind === "image" || scene.kind === "video") ids.add(scene.asset);
     if (scene.kind === "reveal") scene.children.forEach(visit);

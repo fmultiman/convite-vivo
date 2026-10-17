@@ -189,7 +189,14 @@ export const actionSchema = z.discriminatedUnion("kind", [
 /** Motivos gráficos genéricos usados por cenas de entrada e revelação. */
 export const motifs = ["envelope", "shell", "curtain", "gift", "seal"] as const;
 
-const sceneBase = { id: idSchema };
+const sceneBase = {
+  id: idSchema,
+  /**
+   * false = a cena fica na configuração (e seus assets são preservados), mas não entra na
+   * jornada nem gera avisos de publicação. Útil para recursos opcionais (ex.: um teaser).
+   */
+  enabled: z.boolean().default(true),
+};
 
 const imageScene = z.object({
   kind: z.literal("image"),
@@ -217,6 +224,11 @@ const detailsScene = z.object({
   ...sceneBase,
   eyebrow: z.string().optional(),
   headline: z.string().optional(),
+  /**
+   * Quais informações este bloco mostra (padrão: todas). Permite separar, por exemplo, "quando"
+   * (data e horário, compacto) de "onde" (local e endereço, que podem ficar longos).
+   */
+  fields: z.array(z.enum(["date", "time", "venue", "practical"])).min(1).optional(),
 });
 
 const actionsScene = z.object({
@@ -372,6 +384,15 @@ export const featureSchema = z.object({
   delay: z.number().min(0).max(6).default(0.9),
 });
 
+/** Painel de conteúdo de um palco: botão, moldura opcional e cenas de conteúdo. */
+const panelSchema = z.object({
+  /** Texto do botão que revela o painel (ex.: "Abrir a concha"). */
+  prompt: z.string().min(1).max(40),
+  /** Moldura (imagem) atrás do primeiro bloco do painel (o conteúdo continua sendo HTML). */
+  frame: idSchema.optional(),
+  children: z.array(contentSceneSchema).min(1),
+});
+
 /**
  * Palco em camadas (fundo + luz + decoração + peixes + bolhas CSS + canvas atmosférico
  * + texto HTML). Em primeiro plano ficam as bolhas CSS (decor plane "front"); o canvas
@@ -390,6 +411,12 @@ const stageScene = z.object({
   decor: z.array(decorItemSchema).default([]),
   /** Destaque revelado (personagem, objeto...). Opcional. */
   feature: featureSchema.optional(),
+  /**
+   * Painel revelado por um botão (ex.: o convite dentro da concha): cenas de conteúdo aninhadas
+   * que rolam sobre o mesmo mundo fixo. O conteúdo está no HTML desde o início (sem JS fica
+   * visível); com JS aguarda o toque. O destaque (`feature`), se houver, também abre o painel.
+   */
+  panel: panelSchema.optional(),
   /** Enquadramento do fundo ("câmera"): aproximação e ponto focal, em %. */
   view: z
     .object({
@@ -585,6 +612,8 @@ export const eventConfigSchema = z
           scene.decor.forEach((item, i) => requireAsset(item.asset, "image", [...path, "decor", i, "asset"]));
           scene.canvas?.sprites.forEach((id, i) => requireAsset(id, "image", [...path, "canvas", "sprites", i]));
           if (scene.feature) requireAsset(scene.feature.asset, "image", [...path, "feature", "asset"]);
+          if (scene.panel?.frame) requireAsset(scene.panel.frame, "image", [...path, "panel", "frame"]);
+          scene.panel?.children.forEach((child, i) => checkScene(child, [...path, "panel", "children", i]));
           break;
         case "image":
           requireAsset(scene.asset, "image", [...path, "asset"]);

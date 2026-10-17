@@ -16,6 +16,7 @@
     "assets:scene-01": "node scripts/build-scene-assets.mjs maite-1-ano/scene-01",
     "safety": "node scripts/check-public-safety.mjs",
     "assets:scene-02": "node scripts/build-scene-assets.mjs maite-1-ano/scene-02",
+    "assets:scene-04": "node scripts/build-scene-assets.mjs maite-1-ano/scene-04",
     "assets:scene-03-private": "node scripts/build-scene-assets.mjs maite-1-ano/scene-03-private"
   },
   "engines": {

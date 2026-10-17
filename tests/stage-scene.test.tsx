@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { eventConfigSchema } from "@/contract/event.schema";
 import { events } from "@/events";
 import { EventExperience } from "@/renderer/EventExperience";
+import { referencedActionIds, referencedAssetIds } from "@/contract/rules";
 import { resolveExperience } from "@/renderer/model";
 import { parsed, rawDemo, rawMaite, sceneOf } from "./helpers";
 
@@ -211,7 +212,7 @@ describe("cena stage — peixes, ambiência e idle (contrato)", () => {
 describe("cena stage — revelação de destaque (feature)", () => {
   const preview = () => renderToStaticMarkup(<EventExperience model={resolveExperience(events.getEventForPreview("maite-1-ano")!, "preview")} />);
   const publicHtml = (raw: unknown) => renderToStaticMarkup(<EventExperience model={resolveExperience(parsed(raw), "public")} />);
-  const chegada = (html: string) => html.slice(html.indexOf('id="chegada"'), html.indexOf('id="teaser"') > 0 ? html.indexOf('id="teaser"') : undefined);
+  const chegada = (html: string) => html.slice(html.indexOf('id="chegada"'), html.indexOf('id="concha"') > 0 ? html.indexOf('id="concha"') : undefined);
 
   it("a Maitê tem um destaque configurado, em segundo palco, sem criar novo tipo de cena", () => {
     const sc = sceneOf(rawMaite(), "chegada");
@@ -226,7 +227,9 @@ describe("cena stage — revelação de destaque (feature)", () => {
     expect(html).toMatch(/data-stage-group/);
     expect(html).toMatch(/id="mergulho"[^>]*data-grouped/);
     expect(html).not.toMatch(/id="mergulho"[^>]*data-after-stage/);
-    expect(html).toMatch(/id="chegada"[^>]*data-grouped=""[^>]*data-after-stage="true"[^>]*data-group-last/);
+    expect(html).toMatch(/id="chegada"[^>]*data-grouped=""[^>]*data-after-stage="true"/);
+    expect(html).not.toMatch(/id="chegada"[^>]*data-group-last/); // o último do grupo é a concha
+    expect(html).toMatch(/id="concha"[^>]*data-grouped=""[^>]*data-after-stage="true"[^>]*data-group-last/);
     expect(html).toMatch(/id="chegada"[\s\S]*?data-sentinel/);
     expect(html).not.toMatch(/id="mergulho"[\s\S]{0,400}?data-sentinel/);
   });
@@ -303,7 +306,7 @@ describe("cena stage — revelação de destaque (feature)", () => {
     expect(html).toMatch(/--fdelay:0\.9s/);
     expect((html.match(/data-reach=/g) ?? []).length).toBe(14);
     expect(html).toMatch(/class="[^"]*glow[^"]*" aria-hidden="true"/);
-    expect(html).toMatch(/class="[^"]*sparks[^"]*" aria-hidden="true"/);
+    expect(html).toMatch(/class="[^"]*sparks[^"]*"[^>]*aria-hidden="true"/);
   });
 
   it("limites do contrato: posição, escala inicial e faíscas", () => {
@@ -391,11 +394,14 @@ describe("desempenho — causas medidas que não podem voltar", () => {
       expect(m[2], m[1]).not.toMatch(/animation:/);
     }
     const html = renderToStaticMarkup(<EventExperience model={resolveExperience(events.getEventForPreview("maite-1-ano")!, "preview")} />);
-    expect((html.match(/data-layer="(bg|far|mid|near|front)"[^>]*><div class="[^"]*drift/g) ?? []).length).toBe(10);
+    expect((html.match(/data-layer="(bg|far|mid|near|front)"[^>]*><div class="[^"]*drift/g) ?? []).length).toBe(15); // 5 planos × 3 palcos
   });
 
   it("sem unidades de container nem container-type no mundo (impedem o compositor de animar)", () => {
-    expect(noComments(css)).not.toMatch(/container-type|cqw|cqh/);
+    // Unidades de container só no cartão do convite (estático, sem animação dentro): `.frame`.
+    for (const m of noComments(css).matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+      if (/container-type|cqw|cqh/.test(m[2])) expect(m[1].trim(), "cq fora do cartão").toMatch(/^\.frame/);
+    }
     expect(noComments(fishCss)).not.toMatch(/container-type|cqw|@supports/);
   });
 
@@ -421,7 +427,7 @@ describe("desempenho — causas medidas que não podem voltar", () => {
     expect(tsx).toMatch(/syncWorld\(myWorld\(\), prevWorld\(\)\)/);
     expect(tsx).toMatch(/void el\.offsetHeight/); // fixa o estado inicial da dissolução
     const html = renderToStaticMarkup(<EventExperience model={resolveExperience(events.getEventForPreview("maite-1-ano")!, "preview")} />);
-    expect((html.match(/data-world/g) ?? []).length).toBe(2);
+    expect((html.match(/data-world/g) ?? []).length).toBe(3);
     expect(html).toMatch(/id="chegada"[^>]*data-share-fill/); // mesmo fundo: o desfocado das laterais é um só
     expect(html).not.toMatch(/id="mergulho"[^>]*data-share-fill/);
   });
@@ -436,6 +442,97 @@ describe("desempenho — causas medidas que não podem voltar", () => {
     expect(reveal).toContain('setAttribute("data-covered"');
     expect(reveal).toContain('removeAttribute("data-covered")');
     expect(reveal).toMatch(/window\.clearTimeout\(coverTimer\)/);
+  });
+});
+
+describe("cena 04 — a grande concha e o convite (stage com painel)", () => {
+  const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
+  const noComments = (t: string) => t.replace(/\/\*[\s\S]*?\*\//g, "");
+  const render = (mode: "preview" | "public") =>
+    renderToStaticMarkup(<EventExperience model={resolveExperience(mode === "preview" ? events.getEventForPreview("maite-1-ano")! : parsed(rawMaite()), mode)} />);
+  const concha = (html: string) => html.slice(html.indexOf('id="concha"'), html.indexOf('id="final"'));
+
+  it("a concha é o 3º palco do mesmo grupo e o teaser deixou de ser etapa obrigatória (vem depois do convite)", () => {
+    const raw = rawMaite();
+    expect(raw.scenes.map((x: { id: string }) => x.id)).toEqual(["praia", "mergulho", "chegada", "concha", "teaser", "final"]);
+    expect(sceneOf(raw, "teaser").enabled).toBe(false); // opcional e desativado na jornada principal
+    const sc = sceneOf(raw, "concha");
+    expect(sc.kind).toBe("stage");
+    expect(sc.background).toBe("bg-convite");
+    expect(sc.feature.asset).toBe("concha-perola");
+    expect(sc.panel).toMatchObject({ prompt: "Revelar meu convite", frame: "moldura-convite" });
+    expect(sc.headline).toBe("Toque na pérola"); // a concha já está aberta: nada de "abrir a concha"
+    expect(sc.panel.children.map((c: { kind: string }) => c.kind)).toEqual(["details", "details", "countdown", "actions", "gifts"]);
+    // "quando" (compacto) na moldura; "onde" (pode ficar longo) em cartão próprio: a moldura nunca precisa crescer
+    expect(sc.panel.children[0].fields).toEqual(["date", "time"]);
+    expect(sc.panel.children[1].fields).toEqual(["venue", "practical"]);
+    expect(render("preview")).toMatch(/id="concha"[^>]*data-grouped=""[^>]*data-after-stage="true"[^>]*data-group-last/);
+  });
+
+  it("o botão é real, acessível e controla o painel; o conteúdo está no HTML (informação real, não imagem)", () => {
+    const html = concha(render("preview"));
+    expect(html).toMatch(/<button[^>]*aria-expanded="false"[^>]*aria-controls="concha-panel"[^>]*>Revelar meu convite<\/button>/);
+    expect(html).toMatch(/id="concha-panel"[^>]*tabindex="-1"/);
+    for (const txt of ["1 aninho", "domingo, 8 de novembro de 2026", "Horário", "Local", "Confirmar presença", "Ver no mapa", "Sugestões de presente"]) {
+      expect(html, txt).toContain(txt);
+    }
+    // pendências claras na prévia; a moldura é só fundo (o texto não está na imagem)
+    expect(html).toContain("a confirmar");
+    expect(html).toMatch(/--frame:url\(\/events\/maite-1-ano\/scene-04\/moldura-convite\.webp\)/);
+  });
+
+  it("na versão pública nada pendente chega ao HTML do convite", () => {
+    const html = concha(render("public"));
+    expect(html).toContain("domingo, 8 de novembro de 2026");
+    expect(html).not.toContain("a confirmar");
+    expect(html).not.toContain("Texto a confirmar");
+  });
+
+  it("o painel só fica escondido com JS; sem JS tudo visível e o botão some; reduced motion sem animação", () => {
+    const css = noComments(read("src/renderer/scenes/stage.module.css"));
+    expect(css).toMatch(/:global\(\.js\) \.stage\[data-has-panel\]:not\(\[data-open\]\) \.panel\s*\{[^}]*display:\s*none/);
+    expect(css).toMatch(/:global\(html:not\(\.js\)\) \.gate\s*\{[^}]*display:\s*none/);
+    const reduced = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(reduced).toContain(".stage[data-open] .panel");
+    expect(reduced).toContain(".pearl");
+  });
+
+  it("abrir move o foco para o painel, rola até ele (sem animação com reduced motion) e avisa o canvas; replay fecha", () => {
+    const tsx = noComments(read("src/renderer/scenes/StageScene.tsx"));
+    const open = tsx.slice(tsx.indexOf("const openPanel"), tsx.indexOf("useStageParallax(stageRef"));
+    expect(open).toContain("el?.focus({ preventScroll: true })");
+    expect(open).toMatch(/scrollIntoView\(\{ behavior: reduced \? "auto" : "smooth"/);
+    expect(open).toContain("REVEAL_EVENT");
+    expect(tsx).toContain("EXPERIENCE_EVENTS.replay");
+    expect(tsx).toMatch(/window\.addEventListener\(EXPERIENCE_EVENTS\.replay, close\)/);
+  });
+
+  it("cartões do painel não usam desfoque do fundo (o mundo atrás anima)", () => {
+    const css = noComments(read("src/renderer/scenes/stage.module.css"));
+    expect(css).toMatch(/\.panel > section\s*\{[^}]*backdrop-filter:\s*none/);
+  });
+
+  it("contrato: o painel exige texto do botão, moldura de imagem e conteúdo; ações e assets do painel contam como usados", () => {
+    const raw = rawMaite();
+    const sc = sceneOf(raw, "concha");
+    sc.panel.prompt = "";
+    sc.panel.frame = "teaser"; // vídeo
+    sc.panel.children = [];
+    const issues = issuesOf(raw);
+    for (const key of ["panel.prompt", "panel.frame", "panel.children"]) expect(issues.some((i) => i.includes(key)), key).toBe(true);
+    const ok = parsed(rawMaite());
+    expect([...referencedActionIds(ok.scenes)]).toEqual(expect.arrayContaining(["confirmar", "mapa", "presentes"]));
+    expect(referencedAssetIds(ok).has("moldura-convite")).toBe(true);
+  });
+
+  it("derivados da Cena 04 são só WebP públicos sem a criança, e o Clara & Davi segue com o reveal clássico", () => {
+    const raw = rawMaite();
+    for (const id of ["bg-convite", "concha-perola", "moldura-convite", "divisor-conchas"]) {
+      expect(raw.assets[id]).toMatchObject({ status: "approved", src: `/events/maite-1-ano/scene-04/${id}.webp` });
+    }
+    const demo = renderToStaticMarkup(<EventExperience model={resolveExperience(events.getPublishedEvent("demo-clara-e-davi")!, "public")} />);
+    expect(demo).toContain("data-motif");
+    expect(demo).not.toContain("data-has-panel");
   });
 });
 

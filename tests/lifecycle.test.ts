@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { daysUntilEvent, localDateInZone, resolvePhase, zonedDateTimeToInstant, type PhaseInput } from "@/contract/lifecycle";
 
@@ -35,5 +37,36 @@ describe("ciclo de vida temporal", () => {
     expect(zonedDateTimeToInstant("2026-11-08", "13:00", "America/Sao_Paulo").toISOString()).toBe("2026-11-08T16:00:00.000Z");
     // Fuso com horário de verão (Lisboa, UTC+1 no verão).
     expect(zonedDateTimeToInstant("2026-07-01", "19:30", "Europe/Lisbon").toISOString()).toBe("2026-07-01T18:30:00.000Z");
+  });
+
+  describe("contagem regressiva da Maitê (08/11/2026, America/Sao_Paulo)", () => {
+    const at = (iso: string) => new Date(iso);
+    const days = (iso: string) => daysUntilEvent(maite, at(iso));
+
+    it("conta dias de calendário no fuso do evento", () => {
+      expect(days("2026-10-17T15:00:00Z")).toBe(22); // 17/10 12:00 em São Paulo
+      expect(days("2026-11-07T14:00:00Z")).toBe(1); // véspera: "É amanhã!"
+    });
+
+    it("não vira o dia pelo UTC: 23h do dia 7 em São Paulo ainda é véspera, 00h05 do dia 8 já é o dia", () => {
+      expect(days("2026-11-08T01:59:00Z")).toBe(1); // 22:59 de 07/11 em São Paulo
+      expect(days("2026-11-08T02:59:00Z")).toBe(1); // 23:59 de 07/11
+      expect(days("2026-11-08T03:05:00Z")).toBe(0); // 00:05 de 08/11
+      expect(resolvePhase(maite, at("2026-11-08T03:05:00Z"))).toBe("event_day");
+    });
+
+    it("depois do evento a fase é post_event e o número de dias nunca é exibido como positivo", () => {
+      expect(resolvePhase(maite, at("2026-11-09T03:00:00Z"))).toBe("post_event");
+      expect(resolvePhase(maite, at("2027-03-01T12:00:00Z"))).toBe("post_event");
+      expect(days("2026-11-09T12:00:00Z")).toBeLessThan(0); // só existe internamente
+    });
+
+    it("o componente só mostra o número de dias na fase de convite (nunca negativo ou zero)", () => {
+      const src = readFileSync(join(process.cwd(), "src/renderer/scenes/CountdownScene.tsx"), "utf8");
+      const uses = src.match(/daysLeft/g) ?? [];
+      expect(uses.length).toBe(2); // "=== 1" e o número exibido, ambos dentro de phase === "invitation"
+      expect(src).toMatch(/state\?\.phase === "invitation"[\s\S]*?daysLeft === 1[\s\S]*?\{state\.daysLeft\}/);
+      expect(src).toContain("Esta celebração já aconteceu.");
+    });
   });
 });

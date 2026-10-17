@@ -7,12 +7,12 @@ O renderer impede publicar enquanto estes itens não forem confirmados
 
 | Item | Situação | Fonte |
 | --- | --- | --- |
-| Horário | Candidato 13h, roteiro original diz 12h — confirmar com a família | docs 08/09, A-013 |
+| Horário | Candidato recebido da família (briefing), ainda **fora do repositório**: fica em `private/` (ignorada) e só entra no JSON local da máquina. O roteiro original dizia 12h; confirmação final antes de publicar | briefing, A-013 |
 | Nome do local | Não informado | doc 12 |
-| Endereço completo | Recebido sem cidade/UF; **mantido fora do repositório** até autorização | docs 09/12 |
-| RSVP | Telefone e formato (WhatsApp ou formulário) indefinidos | doc 12 §5 |
-| Mapa | Depende do endereço confirmado | doc 12 §5 |
-| Sugestões de presente | Texto recebido, aguardando confirmação final | doc 08 §B |
+| Endereço | Rua e bairro recebidos da família (briefing), **fora do repositório** (ver `docs/PRIMEIRO_PUSH.md`). **Faltam município/UF e CEP** (não inventar); confirmação final e decisão sobre o repositório público antes do 1º push | briefing, docs 09/12 |
+| RSVP | Sem telefone/WhatsApp informado: ação pendente e desabilitada (sem destino fictício); formato indefinido | doc 12 §5 |
+| Mapa | Sem município/UF não há destino validado: ação pendente, sem coordenadas inventadas | doc 12 §5 |
+| Sugestões de presente | Três ideias recebidas no briefing (roupa, calçado e brinquedo), **fora do repositório** até a aprovação; no JSON versionado há três textos-modelo "a confirmar" | briefing |
 | Grafia "Maitê" | Confirmar acento na arte final | doc 09 §1 |
 | Autorização de imagem | Uso público da personagem/teaser no site | A-014, A-025 |
 

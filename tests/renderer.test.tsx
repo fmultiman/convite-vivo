@@ -9,6 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 import { events } from "@/events";
 import { EventExperience } from "@/renderer/EventExperience";
 import { resolveExperience } from "@/renderer/model";
+import { CANDIDATOS_FICTICIOS, parsed, rawMaiteComCandidatos } from "./helpers";
 
 // next/font só existe no compilador do Next; nos testes basta o contrato do catálogo.
 vi.mock("@/renderer/fonts", () => {
@@ -51,15 +52,32 @@ describe("EventExperience (renderer único)", () => {
     expect(html).toContain("domingo, 8 de novembro de 2026");
     expect(html).toContain("a confirmar");
     expect(html).toContain('data-motif="envelope"');
-    expect(html).toContain('data-motif="shell"');
+    expect(html).toContain("data-has-panel"); // a grande concha é um palco com painel (o convite)
+    expect(html).toContain("Revelar meu convite");
     expect(html).toContain("Prévia · rascunho");
   });
 
+  it("a prévia mostra candidatos não confirmados como texto HTML real, marcado a confirmar", () => {
+    const event = parsed(rawMaiteComCandidatos());
+    const html = renderToStaticMarkup(<EventExperience model={resolveExperience(event, "preview")} />);
+    for (const txt of ["13h", CANDIDATOS_FICTICIOS.endereco, ...CANDIDATOS_FICTICIOS.presentes]) {
+      expect(html, txt).toContain(txt);
+    }
+    // sem município, CEP, telefone nem link inventados; mapa e RSVP seguem pendentes (desabilitados)
+    expect(html).not.toMatch(/wa\.me|api\.whatsapp|maps\.google|goo\.gl\/maps|openstreetmap|CEP/i);
+    const concha = html.slice(html.indexOf('id="concha"'), html.indexOf('id="final"'));
+    expect(concha).toMatch(/<(button|span)[^>]*aria-disabled="true"|disabled/);
+  });
+
   it("o HTML da Maitê em modo público não contém dados pendentes", () => {
-    const event = events.getEventForPreview("maite-1-ano")!;
+    const event = parsed(rawMaiteComCandidatos());
     const html = renderToStaticMarkup(<EventExperience model={resolveExperience(event, "public")} />);
     expect(html).toContain("Maitê — 1 aninho");
     expect(html).not.toContain("13h");
+    // Candidatos ainda NÃO confirmados nunca chegam ao HTML público.
+    for (const pending of ["Rua Exemplo", "Bairro Teste", ...CANDIDATOS_FICTICIOS.presentes]) {
+      expect(html, pending).not.toContain(pending);
+    }
     expect(html).not.toContain("a confirmar");
     expect(html).not.toContain("KF-0");
     expect(html).not.toContain("Prévia");

@@ -17,7 +17,7 @@
     "startTime": {
       "value": null,
       "confirmed": false,
-      "note": "Horário em validação com a família; só entra na página depois de confirmado."
+      "note": "Horário candidato recebido da família, em validação. Fica fora do repositório até a confirmação final (dados locais em private/)."
     }
   },
   "venue": {
@@ -29,7 +29,7 @@
     "address": {
       "value": null,
       "confirmed": false,
-      "note": "Endereço de planejamento está nos docs 09/12 e não é copiado para o repositório até autorização da família. Faltam cidade/UF."
+      "note": "Endereço candidato recebido da família, em validação. Não é versionado enquanto o repositório for público e não houver autorização (dados locais em private/). Faltam nome do local, município/UF e CEP; não inventar."
     }
   },
   "practicalInfo": [],
@@ -342,6 +342,46 @@
       "alt": "Ramo de folhagem marinha roxa com pérolas.",
       "placeholderLabel": "Folhagem roxa",
       "source": "Biblioteca visual — plantas"
+    },
+    "bg-convite": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-04/bg-convite.webp",
+      "width": 941,
+      "height": 1672,
+      "alt": "Fundo do mar encantado com um caminho de areia com degraus, conchas, corais e pérolas e raios de luz vindos de cima.",
+      "placeholderLabel": "BG03 — cenário do convite",
+      "source": "Biblioteca visual — BG03"
+    },
+    "concha-perola": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-04/concha-perola.webp",
+      "width": 478,
+      "height": 315,
+      "alt": "Grande concha rosada aberta, com uma pérola enorme brilhando no centro.",
+      "placeholderLabel": "Grande concha com pérola",
+      "source": "Biblioteca visual — conchas e pérolas"
+    },
+    "moldura-convite": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-04/moldura-convite.webp",
+      "width": 765,
+      "height": 693,
+      "alt": "Moldura de conchas, corais e pérolas com o interior perolado, para o cartão do convite.",
+      "placeholderLabel": "Moldura do convite",
+      "source": "Biblioteca visual — molduras"
+    },
+    "divisor-conchas": {
+      "kind": "image",
+      "status": "approved",
+      "src": "/events/maite-1-ano/scene-04/divisor-conchas.webp",
+      "width": 778,
+      "height": 153,
+      "alt": "Divisor com concha e arabescos de pérolas.",
+      "placeholderLabel": "Divisor",
+      "source": "Biblioteca visual — molduras"
     }
   },
   "scenes": [
@@ -1420,46 +1460,219 @@
       }
     },
     {
+      "kind": "stage",
+      "id": "concha",
+      "eyebrow": "Lá no fundo, uma grande concha guarda um segredo",
+      "headline": "Toque na pérola",
+      "background": "bg-convite",
+      "view": {
+        "zoom": 1.06,
+        "x": 50,
+        "y": 62
+      },
+      "feature": {
+        "asset": "concha-perola",
+        "x": 50,
+        "y": 57,
+        "width": 76,
+        "from": {
+          "x": 0,
+          "y": 16,
+          "scale": 0.72
+        },
+        "glow": true,
+        "sparkles": 10,
+        "delay": 0.5
+      },
+      "decor": [
+        {
+          "asset": "bolha-m",
+          "x": 16,
+          "y": 70,
+          "width": 7,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 0.0
+        },
+        {
+          "asset": "bolha-p",
+          "x": 27,
+          "y": 40,
+          "width": 4.5,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 1.6
+        },
+        {
+          "asset": "bolha-g",
+          "x": 35,
+          "y": 58,
+          "width": 9.5,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 3.2
+        },
+        {
+          "asset": "bolha-m",
+          "x": 48,
+          "y": 78,
+          "width": 5.5,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 4.8
+        },
+        {
+          "asset": "bolha-p",
+          "x": 57,
+          "y": 30,
+          "width": 4,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 6.4
+        },
+        {
+          "asset": "bolha-g",
+          "x": 66,
+          "y": 62,
+          "width": 10,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 8.0
+        },
+        {
+          "asset": "bolha-m",
+          "x": 76,
+          "y": 44,
+          "width": 6,
+          "plane": "front",
+          "motion": "rise",
+          "delay": 9.6
+        }
+      ],
+      "fish": [
+        {
+          "variant": "lilas",
+          "y": 34,
+          "size": 6,
+          "plane": "far",
+          "direction": "ltr",
+          "duration": 48,
+          "phase": 0.15
+        },
+        {
+          "variant": "coral",
+          "y": 31,
+          "size": 5.5,
+          "plane": "far",
+          "direction": "ltr",
+          "duration": 60,
+          "phase": 0.8,
+          "shape": "disco"
+        },
+        {
+          "variant": "aqua",
+          "y": 37,
+          "size": 3.6,
+          "plane": "far",
+          "direction": "rtl",
+          "duration": 50,
+          "phase": 0.2
+        },
+        {
+          "variant": "aqua",
+          "y": 39.5,
+          "size": 3.4,
+          "plane": "far",
+          "direction": "rtl",
+          "duration": 50,
+          "phase": 0.23
+        },
+        {
+          "variant": "aqua",
+          "y": 41.5,
+          "size": 3.2,
+          "plane": "far",
+          "direction": "rtl",
+          "duration": 50,
+          "phase": 0.26
+        },
+        {
+          "variant": "coral",
+          "y": 52,
+          "size": 9,
+          "plane": "mid",
+          "direction": "ltr",
+          "duration": 34,
+          "phase": 0.5
+        }
+      ],
+      "ambience": {
+        "light": 0.7,
+        "motes": 10,
+        "parallax": true
+      },
+      "canvas": {
+        "sprites": [
+          "bolha-g",
+          "bolha-m",
+          "bolha-p"
+        ],
+        "density": 1,
+        "motes": 1
+      },
+      "panel": {
+        "prompt": "Revelar meu convite",
+        "frame": "moldura-convite",
+        "children": [
+          {
+            "kind": "details",
+            "id": "convite",
+            "eyebrow": "Maitê faz",
+            "headline": "1 aninho",
+            "fields": [
+              "date",
+              "time"
+            ]
+          },
+          {
+            "kind": "details",
+            "id": "local",
+            "eyebrow": "Vamos nos encontrar em",
+            "headline": "Onde vai ser",
+            "fields": [
+              "venue",
+              "practical"
+            ]
+          },
+          {
+            "kind": "countdown",
+            "id": "contagem"
+          },
+          {
+            "kind": "actions",
+            "id": "acoes",
+            "actions": [
+              "confirmar",
+              "mapa",
+              "presentes"
+            ]
+          },
+          {
+            "kind": "gifts",
+            "id": "presentes",
+            "headline": "Sugestões de presente"
+          }
+        ]
+      }
+    },
+    {
       "kind": "video",
       "id": "teaser",
       "asset": "teaser",
       "ambient": false,
-      "eyebrow": "Uma surpresa está chegando",
-      "headline": "Siga as bolhas"
-    },
-    {
-      "kind": "reveal",
-      "id": "concha",
-      "motif": "shell",
-      "prompt": "Abrir a concha",
-      "eyebrow": "Lá no fundo, uma grande concha guarda um segredo",
-      "headline": "Toque para revelar o convite",
-      "children": [
-        {
-          "kind": "details",
-          "id": "convite",
-          "eyebrow": "Maitê faz",
-          "headline": "1 aninho"
-        },
-        {
-          "kind": "countdown",
-          "id": "contagem"
-        },
-        {
-          "kind": "actions",
-          "id": "acoes",
-          "actions": [
-            "confirmar",
-            "mapa",
-            "presentes"
-          ]
-        },
-        {
-          "kind": "gifts",
-          "id": "presentes",
-          "headline": "Sugestões de presente"
-        }
-      ]
+      "eyebrow": "Se quiser rever",
+      "headline": "O convite em movimento",
+      "enabled": false
     },
     {
       "kind": "message",
@@ -1476,7 +1689,7 @@
       "id": "confirmar",
       "label": "Confirmar presença",
       "confirmed": false,
-      "note": "Definir telefone e formato do RSVP com a família.",
+      "note": "Sem telefone/WhatsApp informado: manter pendente (sem destino fictício). Definir telefone e formato do RSVP com a família.",
       "target": {
         "channel": "whatsapp",
         "phone": null,
@@ -1489,7 +1702,7 @@
       "label": "Ver no mapa",
       "confirmed": false,
       "url": null,
-      "note": "Aguardando endereço completo confirmado (com cidade/UF)."
+      "note": "Sem município/UF não há destino validado: manter pendente (sem coordenadas inventadas)."
     },
     {
       "kind": "gifts",
@@ -1497,7 +1710,7 @@
       "label": "Sugestão de presente",
       "confirmed": false,
       "url": null,
-      "note": "Leva à seção de presentes da página. Confirmar texto com a família."
+      "note": "Leva à seção de presentes da página. Habilitar quando as sugestões forem confirmadas."
     }
   ],
   "gifts": {

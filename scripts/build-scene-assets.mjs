@@ -51,6 +51,13 @@ const SCENES = {
     ["folha-rosa", "plantas/folhagem-marinha-delicada-01.png", "sprite"],
     ["folha-roxa", "plantas/folhagem-marinha-ramificada-01.png", "sprite"],
   ],
+  "maite-1-ano/scene-04": [
+    // Cenário do convite, a grande concha (protagonista), a moldura do cartão e o divisor. Sem a criança.
+    ["bg-convite", "backgrounds/cenário-do-convite-revelação final.png", "background"],
+    ["concha-perola", "conchas-e-perolas/concha-aberta-com-perola-gigante-01.png", "sprite"],
+    ["moldura-convite", "molduras-e-placas/moldura-principal-com-conchas-e-corais-01.png", "sprite"],
+    ["divisor-conchas", "molduras-e-placas/divisor-horizontal-com-concha-e-arabescos-01.png", "sprite"],
+  ],
   // PRIVADO: contém a criança. Sai em assets/_prepared/ (ignorado pelo Git), nunca em public/.
   // Só vai para public/ depois da autorização da família (ver docs/SCENE_02_V2.md).
   "maite-1-ano/scene-03-private": [["maite-cavalo-marinho", "maite/maite-cavalo-marinho.png", "sprite"]],
@@ -87,9 +94,8 @@ for (const [id, rel, kind] of list) {
         data[i] = data[i + 1] = data[i + 2] = data[i + 3] = 0;
       }
     }
-    pipeline = sharp(data, { raw: info })
-      .trim({ threshold: 1 })
-      .webp({ quality: 84, alphaQuality: 92, effort: 6 });
+    const source = sharp(data, { raw: info }).trim({ threshold: 1 });
+    pipeline = source.webp({ quality: 84, alphaQuality: 92, effort: 6 });
   }
   const meta = await pipeline.toFile(out);
   totalIn += statSync(src).size / 1024;

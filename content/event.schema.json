@@ -512,6 +512,10 @@
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
               },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
               "eyebrow": {
                 "type": "string"
               },
@@ -754,6 +758,10 @@
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
               },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
               "eyebrow": {
                 "type": "string"
               },
@@ -937,6 +945,270 @@
                   "width"
                 ]
               },
+              "panel": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "frame": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9-]*$"
+                  },
+                  "children": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "image"
+                            },
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "enabled": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "asset": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "eyebrow": {
+                              "type": "string"
+                            },
+                            "headline": {
+                              "type": "string"
+                            },
+                            "body": {
+                              "type": "string"
+                            },
+                            "layout": {
+                              "default": "framed",
+                              "type": "string",
+                              "enum": [
+                                "full-bleed",
+                                "framed"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id",
+                            "asset"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "video"
+                            },
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "enabled": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "asset": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "eyebrow": {
+                              "type": "string"
+                            },
+                            "headline": {
+                              "type": "string"
+                            },
+                            "body": {
+                              "type": "string"
+                            },
+                            "ambient": {
+                              "default": false,
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id",
+                            "asset"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "details"
+                            },
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "enabled": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "eyebrow": {
+                              "type": "string"
+                            },
+                            "headline": {
+                              "type": "string"
+                            },
+                            "fields": {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "date",
+                                  "time",
+                                  "venue",
+                                  "practical"
+                                ]
+                              }
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "actions"
+                            },
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "enabled": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "headline": {
+                              "type": "string"
+                            },
+                            "actions": {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9][a-z0-9-]*$"
+                              }
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id",
+                            "actions"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "gifts"
+                            },
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "enabled": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "headline": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "countdown"
+                            },
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "enabled": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "headline": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "message"
+                            },
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "enabled": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "eyebrow": {
+                              "type": "string"
+                            },
+                            "headline": {
+                              "type": "string"
+                            },
+                            "body": {
+                              "type": "string"
+                            },
+                            "replay": {
+                              "default": false,
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "id",
+                            "headline"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "prompt",
+                  "children"
+                ]
+              },
               "view": {
                 "type": "object",
                 "properties": {
@@ -1101,6 +1373,10 @@
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
               },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
               "motif": {
                 "type": "string",
                 "enum": [
@@ -1137,6 +1413,10 @@
                         "id": {
                           "type": "string",
                           "pattern": "^[a-z0-9][a-z0-9-]*$"
+                        },
+                        "enabled": {
+                          "default": true,
+                          "type": "boolean"
                         },
                         "asset": {
                           "type": "string",
@@ -1177,6 +1457,10 @@
                           "type": "string",
                           "pattern": "^[a-z0-9][a-z0-9-]*$"
                         },
+                        "enabled": {
+                          "default": true,
+                          "type": "boolean"
+                        },
                         "asset": {
                           "type": "string",
                           "pattern": "^[a-z0-9][a-z0-9-]*$"
@@ -1212,11 +1496,28 @@
                           "type": "string",
                           "pattern": "^[a-z0-9][a-z0-9-]*$"
                         },
+                        "enabled": {
+                          "default": true,
+                          "type": "boolean"
+                        },
                         "eyebrow": {
                           "type": "string"
                         },
                         "headline": {
                           "type": "string"
+                        },
+                        "fields": {
+                          "minItems": 1,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "date",
+                              "time",
+                              "venue",
+                              "practical"
+                            ]
+                          }
                         }
                       },
                       "required": [
@@ -1234,6 +1535,10 @@
                         "id": {
                           "type": "string",
                           "pattern": "^[a-z0-9][a-z0-9-]*$"
+                        },
+                        "enabled": {
+                          "default": true,
+                          "type": "boolean"
                         },
                         "headline": {
                           "type": "string"
@@ -1264,6 +1569,10 @@
                           "type": "string",
                           "pattern": "^[a-z0-9][a-z0-9-]*$"
                         },
+                        "enabled": {
+                          "default": true,
+                          "type": "boolean"
+                        },
                         "headline": {
                           "type": "string"
                         }
@@ -1284,6 +1593,10 @@
                           "type": "string",
                           "pattern": "^[a-z0-9][a-z0-9-]*$"
                         },
+                        "enabled": {
+                          "default": true,
+                          "type": "boolean"
+                        },
                         "headline": {
                           "type": "string"
                         }
@@ -1303,6 +1616,10 @@
                         "id": {
                           "type": "string",
                           "pattern": "^[a-z0-9][a-z0-9-]*$"
+                        },
+                        "enabled": {
+                          "default": true,
+                          "type": "boolean"
                         },
                         "eyebrow": {
                           "type": "string"
@@ -1347,6 +1664,10 @@
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
               },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
               "asset": {
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
@@ -1386,6 +1707,10 @@
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
               },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
               "asset": {
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
@@ -1421,11 +1746,28 @@
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
               },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
               "eyebrow": {
                 "type": "string"
               },
               "headline": {
                 "type": "string"
+              },
+              "fields": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "date",
+                    "time",
+                    "venue",
+                    "practical"
+                  ]
+                }
               }
             },
             "required": [
@@ -1443,6 +1785,10 @@
               "id": {
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
               },
               "headline": {
                 "type": "string"
@@ -1473,6 +1819,10 @@
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
               },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
               "headline": {
                 "type": "string"
               }
@@ -1493,6 +1843,10 @@
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
               },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
               "headline": {
                 "type": "string"
               }
@@ -1512,6 +1866,10 @@
               "id": {
                 "type": "string",
                 "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
               },
               "eyebrow": {
                 "type": "string"

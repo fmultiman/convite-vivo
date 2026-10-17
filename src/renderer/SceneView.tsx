@@ -33,7 +33,15 @@ export function SceneView({
       return null;
     case "stage": {
       const entry = model.scenes.find((s) => s.kind === "entry");
-      return <StageScene scene={scene} first={first} stack={stack} tint={entry?.kind === "entry" ? entry.transitionTint : undefined} />;
+      return (
+        <StageScene
+          scene={scene}
+          first={first}
+          stack={stack}
+          tint={entry?.kind === "entry" ? entry.transitionTint : undefined}
+          panel={scene.panel?.children.map((child) => <SceneView key={child.id} scene={child} model={model} />)}
+        />
+      );
     }
     case "reveal":
       return (

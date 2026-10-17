@@ -67,4 +67,20 @@ if (problems.length > 0) {
   for (const p of problems) console.error(`  - ${p}`);
   process.exit(1);
 }
+// Aviso (não bloqueia): endereço de rua no conteúdo versionado (decidir antes do 1º push para um repositório
+// público: docs/PRIMEIRO_PUSH.md). Lê a versão que o git de fato commitaria (o índice), não a cópia local de
+// trabalho, que pode carregar os dados reais da família (skip-worktree + private/).
+const versioned = (f) => {
+  try {
+    return execFileSync("git", ["show", `:${f}`], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+  } catch {
+    return readFileSync(join(root, f), "utf8"); // ainda não rastreado: o que seria adicionado
+  }
+};
+const addressy = files.filter((f) => /^content\/events\/.*\.json$/.test(f)).filter((f) =>
+  /"value":\s*"(Rua|R\.|Av\.?|Avenida|Travessa|Alameda|Pra[cç]a|Estrada|Rodovia)\s/i.test(versioned(f)),
+);
+for (const f of addressy) {
+  console.warn(`⚠ Atenção: ${f} contém um endereço de rua (candidato ainda a confirmar). Decida antes do 1º push público (docs/PRIMEIRO_PUSH.md).`);
+}
 console.log(`✓ Segurança: ${files.length} arquivos a versionar, sem mídia privada, pastas brutas, arquivos grandes ou caminhos locais.`);

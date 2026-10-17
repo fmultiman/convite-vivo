@@ -10,11 +10,16 @@ em `.docx`, **não** faz parte do git).
 1. **E-mail dos commits.** Os 2 commits locais têm o **e-mail pessoal do autor** (conferir com
    `git log --format='%ae'`); ficará público para sempre. Opções: (a) aceitar; (b) reescrever **antes** do 1º push com o e-mail
    `ID+fmultiman@users.noreply.github.com` (GitHub → Settings → Emails). Só com sua aprovação.
-2. **Dados da família em texto.** O histórico/árvore contém o primeiro nome da pessoa de contato da família em
-   notas internas de `content/events/maite-1-ano.json`, `docs/` e um teste, além de tamanhos de
-   roupa dos presentes e um horário candidato **não confirmado** (os valores foram neutralizados no checkpoint da Cena 01, mas continuam nos commits anteriores). Nenhum endereço, telefone
-   ou foto. Opções: neutralizar ("a família"), manter o JSON do evento fora do repo público
-   até a aprovação da família, ou aceitar.
+2. **Dados da família em texto.** O horário (13h), o **endereço de rua e o bairro** e as sugestões de presente
+   (com tamanhos de roupa/calçado da criança) chegaram como candidatos **ainda não confirmados**. Para não os levar ao
+   repositório público, **o JSON versionado não os contém** (campos vazios e textos-modelo "a confirmar") e os testes usam
+   valores fictícios. Os valores reais ficam em `private/maite-1-ano.dados-locais.json` (pasta ignorada) e a cópia de
+   trabalho local de `content/events/maite-1-ano.json` os usa, marcada com `git update-index --skip-worktree` para o
+   Git ignorar essa diferença. Para editar o JSON de verdade (mudança estrutural a versionar): `git update-index
+   --no-skip-worktree content/events/maite-1-ano.json`, editar sem os dados reais, commitar e reaplicar. Notas e docs
+   antigos ainda citam o primeiro nome da pessoa de contato. `npm run safety` **avisa** (não bloqueia) se houver endereço
+   de rua no conteúdo versionado. Quando a família confirmar e você decidir publicar: colocar os valores com
+   `confirmed: true` no JSON versionado (decisão sua) ou mantê-los fora.
 3. **`MAITE_ASSET_MANIFEST.json` (local, fora do Git)** lista nomes e hashes de arquivos restritos (da criança) e
    descreve seus conteúdos. Não expõe imagens, mas revela a existência dos arquivos. Opções: manter, reduzir ou
    mover para pasta ignorada.

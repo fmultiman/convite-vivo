@@ -58,7 +58,7 @@ describe("contrato de evento", () => {
   it("exige que referências de cena apontem para assets e ações existentes", () => {
     const raw = rawMaite();
     sceneOf(raw, "chegada").feature.asset = "nao-existe";
-    sceneOf(raw, "concha").children[2].actions.push("acao-fantasma");
+    sceneOf(raw, "concha").panel.children.find((c: { kind: string }) => c.kind === "actions").actions.push("acao-fantasma");
     const issues = issuesOf(raw);
     expect(issues.some((i) => i.includes('asset "nao-existe" não existe'))).toBe(true);
     expect(issues.some((i) => i.includes('ação "acao-fantasma" não existe'))).toBe(true);
@@ -72,7 +72,7 @@ describe("contrato de evento", () => {
 
   it("rejeita ids de cena duplicados, inclusive dentro de revelações", () => {
     const raw = rawMaite();
-    sceneOf(raw, "concha").children[0].id = "chegada";
+    sceneOf(raw, "concha").panel.children[0].id = "chegada";
     expect(issuesOf(raw).some((i) => i.includes('id de cena duplicado "chegada"'))).toBe(true);
   });
 
