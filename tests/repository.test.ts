@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 import { canPublish, getPublicationIssues } from "@/contract/rules";
 import { events, eventSources } from "@/events";
 import { createEventRepository, EventConfigError } from "@/events/repository";
-import { parsed, rawDemo, rawMaite } from "./helpers";
+import { resolveExperience } from "@/renderer/model";
+import { parsed, rawDemo, rawMaite, rawMaiteComCandidatos } from "./helpers";
 
 describe("resolução de slugs", () => {
   it("resolve o evento publicado pelo slug", () => {
@@ -12,14 +13,15 @@ describe("resolução de slugs", () => {
     expect(event?.status).toBe("published");
   });
 
-  it("não expõe o rascunho da Maitê na rota pública", () => {
-    expect(events.getPublishedEvent("maite-1-ano")).toBeNull();
-    expect(events.listPublishedSlugs()).not.toContain("maite-1-ano");
+  it("a Maitê está publicada como PILOTO (reconhecimento explícito de pendências)", () => {
+    const event = events.getPublishedEvent("maite-1-ano");
+    expect(event?.pilot?.acknowledgePending).toBe(true);
+    expect(events.listPublishedSlugs()).toContain("maite-1-ano");
   });
 
-  it("resolve o rascunho da Maitê na prévia", () => {
+  it("resolve a Maitê na prévia", () => {
     const event = events.getEventForPreview("maite-1-ano");
-    expect(event?.status).toBe("draft");
+    expect(event?.status).toBe("published");
     expect(event?.schedule.date).toBe("2026-11-08");
   });
 
@@ -53,11 +55,26 @@ describe("regras de publicação", () => {
     expect(canPublish(parsed(rawDemo()))).toBe(true);
   });
 
-  it("falha a carga quando um evento publicado tem pendências bloqueantes", () => {
+  it("falha a carga quando um evento publicado (sem piloto) tem pendências bloqueantes", () => {
     const raw = rawMaite();
+    delete raw.pilot;
     raw.status = "published";
     expect(() => createEventRepository({ "maite-1-ano": raw })).toThrow(EventConfigError);
     expect(() => createEventRepository({ "maite-1-ano": raw })).toThrow(/Horário ainda não confirmado/);
+  });
+
+  it("piloto: publica com pendências só com reconhecimento explícito, e o público segue sem dados pendentes", () => {
+    const raw = rawMaiteComCandidatos();
+    delete raw.pilot;
+    raw.status = "published";
+    expect(() => createEventRepository({ "maite-1-ano": raw })).toThrow(/pendências bloqueantes/);
+    raw.pilot = { acknowledgePending: true, note: "Piloto para testes visuais." };
+    const repo = createEventRepository({ "maite-1-ano": raw });
+    const event = repo.getPublishedEvent("maite-1-ano")!;
+    expect(event.status).toBe("published");
+    const model = resolveExperience(event, "public");
+    expect(JSON.stringify(model)).not.toContain("Rua Exemplo");
+    expect(model.details.time).toBeNull();
   });
 
   it("falha a carga quando nome do arquivo e slug divergem", () => {

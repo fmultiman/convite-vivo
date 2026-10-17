@@ -514,6 +514,12 @@ export const eventConfigSchema = z
     status: z.enum(editorialStatuses),
     /** Evento fictício de demonstração. Exibe aviso e nunca é indexado. */
     demo: z.boolean().default(false),
+    /**
+     * Publicação de PILOTO: permite `status: "published"` mesmo com pendências bloqueantes conhecidas
+     * (horário, local, ações). O modo público continua omitindo tudo que não está confirmado e o convite
+     * continua sem indexação; o reconhecimento é explícito e fica no repositório. Remover ao concluir os dados.
+     */
+    pilot: z.object({ acknowledgePending: z.literal(true), note: z.string().min(1) }).optional(),
     locale: z.literal("pt-BR"),
 
     /** Nome curto do homenageado/evento (ex.: "Maitê"). */

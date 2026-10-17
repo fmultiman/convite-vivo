@@ -42,7 +42,8 @@ export function createEventRepository(sources: Record<string, unknown>): EventRe
       throw new EventConfigError(source, `o nome do arquivo deve ser igual ao slug ("${event.slug}")`);
     }
     if (ids.has(event.id)) throw new EventConfigError(source, `id duplicado "${event.id}"`);
-    if (event.status === "published") {
+    // Piloto: o reconhecimento explícito (`event.pilot`) dispensa o bloqueio por pendências.
+    if (event.status === "published" && !event.pilot) {
       const blockers = getPublicationIssues(event).filter((i) => i.severity === "blocker");
       if (blockers.length > 0) {
         throw new EventConfigError(

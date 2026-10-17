@@ -54,7 +54,7 @@ describe("EventExperience (renderer único)", () => {
     expect(html).toContain('data-motif="envelope"');
     expect(html).toContain("data-has-panel"); // a grande concha é um palco com painel (o convite)
     expect(html).toContain("Revelar meu convite");
-    expect(html).toContain("Prévia · rascunho");
+    expect(html).toContain("Prévia · publicado");
   });
 
   it("a prévia mostra candidatos não confirmados como texto HTML real, marcado a confirmar", () => {

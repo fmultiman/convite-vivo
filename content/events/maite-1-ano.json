@@ -6,8 +6,12 @@
   "id": "evt_m41t3a01",
   "slug": "maite-1-ano",
   "type": "birthday",
-  "status": "draft",
+  "status": "published",
   "demo": false,
+  "pilot": {
+    "acknowledgePending": true,
+    "note": "Piloto para testes visuais da família. Horário, local, endereço e RSVP ainda não confirmados: o modo público os omite. Remover este bloco quando os dados forem confirmados."
+  },
   "locale": "pt-BR",
   "name": "Maitê",
   "title": "Maitê — 1 aninho",

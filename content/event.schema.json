@@ -54,6 +54,23 @@
       "default": false,
       "type": "boolean"
     },
+    "pilot": {
+      "type": "object",
+      "properties": {
+        "acknowledgePending": {
+          "type": "boolean",
+          "const": true
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "acknowledgePending",
+        "note"
+      ]
+    },
     "locale": {
       "type": "string",
       "const": "pt-BR"
