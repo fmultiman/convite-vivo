@@ -15,7 +15,7 @@ describe("modelo de experiência", () => {
     expect(model.details.time).toBeNull();
     expect(model.details.venueAddress).toBeNull();
     expect(serialized).not.toContain("13h");
-    expect(serialized).not.toContain("A-013");
+    expect(serialized).not.toContain("A-013"); // ids internos de pendência
     expect(serialized).not.toContain("KF-03");
     expect(serialized).not.toContain("Rua Exemplo");
     expect(serialized).not.toContain("Presente exemplo");

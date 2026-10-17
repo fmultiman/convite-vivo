@@ -2,7 +2,7 @@
 
 Data: 15/10/2026 · Escopo: **inventário, curadoria e planejamento**. Nada foi
 movido, convertido, publicado nem implementado. Os originais permanecem
-intactos. Dados completos por arquivo: `MAITE_ASSET_MANIFEST.json` (inventário mantido localmente, fora do Git).
+intactos. Dados completos por arquivo: `MAITE_ASSET_MANIFEST.json` (mantido localmente, fora do Git: lista nomes e hashes de arquivos restritos).
 
 > **Privacidade primeiro.** A biblioteca contém imagens com a aparência de uma
 > criança real (rostos estilizados a partir de fotos). Nada disso é público por

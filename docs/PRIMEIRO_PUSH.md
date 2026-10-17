@@ -1,41 +1,38 @@
-# Primeiro push seguro (repositório PÚBLICO)
+# Publicação: GitHub e Vercel (repositório PÚBLICO)
 
-Estado em 16/10/2026: **nada foi enviado**. Sem `remote`, sem deploy, sem DNS.
-GitHub informado: `https://github.com/fmultiman/convite-vivo` (existe, vazio, sem branches).
-Este repositório local tem a raiz em `convite-vivo-web/` (a pasta pai, com a documentação interna
-em `.docx`, **não** faz parte do git).
+Repositório: `https://github.com/fmultiman/convite-vivo` (público). Branch de produção: `main`.
+A raiz do git é `convite-vivo-web/` (a pasta pai, com documentos internos em `.docx` e a biblioteca visual
+bruta, **não** faz parte do repositório).
 
-## Antes de qualquer push (decisões pendentes)
+## O que ficou de fora do repositório de propósito
 
-1. **E-mail dos commits.** Os 2 commits locais têm o **e-mail pessoal do autor** (conferir com
-   `git log --format='%ae'`); ficará público para sempre. Opções: (a) aceitar; (b) reescrever **antes** do 1º push com o e-mail
-   `ID+fmultiman@users.noreply.github.com` (GitHub → Settings → Emails). Só com sua aprovação.
-2. **Dados da família em texto.** O horário (13h), o **endereço de rua e o bairro** e as sugestões de presente
-   (com tamanhos de roupa/calçado da criança) chegaram como candidatos **ainda não confirmados**. Para não os levar ao
-   repositório público, **o JSON versionado não os contém** (campos vazios e textos-modelo "a confirmar") e os testes usam
-   valores fictícios. Os valores reais ficam em `private/maite-1-ano.dados-locais.json` (pasta ignorada) e a cópia de
-   trabalho local de `content/events/maite-1-ano.json` os usa, marcada com `git update-index --skip-worktree` para o
-   Git ignorar essa diferença. Para editar o JSON de verdade (mudança estrutural a versionar): `git update-index
-   --no-skip-worktree content/events/maite-1-ano.json`, editar sem os dados reais, commitar e reaplicar. Notas e docs
-   antigos ainda citam o primeiro nome da pessoa de contato. `npm run safety` **avisa** (não bloqueia) se houver endereço
-   de rua no conteúdo versionado. Quando a família confirmar e você decidir publicar: colocar os valores com
-   `confirmed: true` no JSON versionado (decisão sua) ou mantê-los fora.
-3. **`MAITE_ASSET_MANIFEST.json` (local, fora do Git)** lista nomes e hashes de arquivos restritos (da criança) e
-   descreve seus conteúdos. Não expõe imagens, mas revela a existência dos arquivos. Opções: manter, reduzir ou
-   mover para pasta ignorada.
-4. **Branch:** local é `master`; o GitHub usa `main`.
+| Item | Onde fica | Por quê |
+| --- | --- | --- |
+| Biblioteca visual bruta (`assets/`), fotos, PDFs, vídeo | só na máquina local | contêm a criança e originais pesados; ignorados pelo `.gitignore` e barrados por `npm run safety` |
+| Dados familiares provisórios (horário, endereço, presentes) | `private/maite-1-ano.dados-locais.json` (ignorada) | ainda não confirmados pela família; o JSON versionado tem campos vazios/textos-modelo |
+| `MAITE_ASSET_MANIFEST.json` | `private/` (ignorada) | lista nomes e hashes de arquivos restritos da criança |
+| Capturas de revisão, `.env*` | locais | não pertencem ao produto |
 
-## Comandos (NÃO executados; rode só após aprovar)
+Única arte da criança no repositório: `public/events/maite-1-ano/scene-03/maite-cavalo-marinho.webp`
+(autorizada para o piloto; caminho e SHA-256 fixados em `scripts/check-public-safety.mjs`).
 
-```bash
-git branch -M main
-git remote add origin https://github.com/fmultiman/convite-vivo.git
-npm run verify        # inclui npm run safety
-git status --short    # conferir: nada em assets/, private/, nenhum PNG/PDF/MP4
-git push -u origin main
-```
+## Cópia local de trabalho com os dados reais
 
-## Depois do push
+A cópia local de `content/events/maite-1-ano.json` pode carregar os valores reais (de `private/`) marcada com
+`git update-index --skip-worktree`. **Não confie só em `git status`**: confira o que vai ao GitHub com
+`git show HEAD:content/events/maite-1-ano.json`. Para uma mudança estrutural versionável nesse arquivo:
+`git update-index --no-skip-worktree content/events/maite-1-ano.json`, restaurar a versão sanitizada, editar,
+commitar e reaplicar os dados locais.
 
-Conectar o projeto da Vercel ao repositório (Preview protegido; sem `ENABLE_DRAFT_PREVIEW` em
-produção). O domínio `convitevivo.multihuman.com.br` só após aprovação explícita.
+## Vercel
+
+- Projeto `convite-vivo` (time `fmultimans-projects`), Framework Next.js, raiz do repositório, branch de produção `main`.
+- Produção **sem** `ENABLE_DRAFT_PREVIEW` (a rota `/preview/*` não existe em produção). A prévia só no ambiente
+  Preview, com `ENABLE_DRAFT_PREVIEW=true` (lido no **build**).
+- Domínio `convitevivo.multihuman.com.br`: **não ativado** até haver aprovação explícita da família e dos dados.
+
+## Antes de publicar no domínio final
+
+1. A família confirma horário, endereço completo (com município/UF), nome do local, RSVP e presentes.
+2. Decidir se esses dados entram no JSON versionado (repositório público) ou vêm de fonte privada.
+3. Remover o aviso de prévia/rascunho, revisar `robots` e Open Graph, e conferir o `NEXT_PUBLIC_SITE_URL`.
