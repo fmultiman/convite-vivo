@@ -74,11 +74,16 @@ export interface ResolvedAction {
 
 type WithAsset<S, K extends string> = Omit<S, K> & { [P in K]: ResolvedAsset };
 
+/** Enfeite do encerramento já resolvido (só imagens aprovadas). */
+export type ResolvedOrnament = Omit<MessageConfigScene["ornaments"][number], "asset"> & { image: ReadyImage };
+
 type ResolvedContentSceneOf<S> = S extends { kind: "image" | "video" }
   ? WithAsset<S, "asset">
   : S extends { kind: "actions" }
     ? Omit<S, "actions"> & { actions: ResolvedAction[] }
-    : S;
+    : S extends { kind: "message" }
+      ? Omit<S, "backdrop" | "ornaments"> & { backdrop: ReadyImage | null; ornaments: ResolvedOrnament[] }
+      : S;
 
 export type ResolvedContentScene = ResolvedContentSceneOf<ContentScene>;
 
@@ -116,6 +121,7 @@ export interface StageArt {
 }
 
 type EntryConfigScene = Extract<Scene, { kind: "entry" }>;
+type MessageConfigScene = Extract<ContentScene, { kind: "message" }>;
 type StageConfigScene = Extract<Scene, { kind: "stage" }>;
 
 export type ResolvedScene =
@@ -378,6 +384,22 @@ export function resolveExperience(event: EventConfig, mode: RenderMode): Experie
             .map((id) => actionsById.get(id)!)
             .filter((action) => mode === "preview" || !action.pending),
         };
+      case "message": {
+        const approved = (id: string): ReadyImage | null => {
+          const asset = resolveAsset(event, id, "public");
+          return asset.ready && asset.kind === "image" ? asset : null;
+        };
+        const { backdrop, ornaments, ...message } = scene;
+        return {
+          ...message,
+          backdrop: backdrop ? approved(backdrop) : null,
+          ornaments: ornaments.flatMap((o): ResolvedOrnament[] => {
+            const { asset, ...rest } = o;
+            const image = approved(asset);
+            return image ? [{ ...rest, image }] : [];
+          }),
+        };
+      }
       default:
         return scene;
     }

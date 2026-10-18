@@ -36,7 +36,14 @@
       "note": "Endereço candidato recebido da família, em validação. Não é versionado enquanto o repositório for público e não houver autorização (dados locais em private/). Faltam nome do local, município/UF e CEP; não inventar."
     }
   },
-  "practicalInfo": [],
+  "practicalInfo": [
+    {
+      "id": "traje",
+      "label": "Traje de banho",
+      "text": "Leve o seu! O salão tem piscina.",
+      "confirmed": true
+    }
+  ],
   "theme": {
     "colors": {
       "backdropFrom": "#EAF7F5",
@@ -506,8 +513,8 @@
         },
         {
           "asset": "bolha-p",
-          "x": 44,
-          "y": 51,
+          "x": 74,
+          "y": 47,
           "width": 3.6,
           "plane": "mid",
           "motion": "rise",
@@ -515,8 +522,8 @@
         },
         {
           "asset": "bolha-m",
-          "x": 50,
-          "y": 50,
+          "x": 66,
+          "y": 49,
           "width": 4.6,
           "plane": "mid",
           "motion": "rise",
@@ -524,8 +531,8 @@
         },
         {
           "asset": "bolha-p",
-          "x": 47,
-          "y": 52,
+          "x": 84,
+          "y": 50,
           "width": 3,
           "plane": "mid",
           "motion": "rise",
@@ -913,6 +920,96 @@
           "plane": "front",
           "motion": "rise",
           "delay": 14.4
+        },
+        {
+          "asset": "bolha-m",
+          "x": 50,
+          "y": 90,
+          "width": 8,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 0.0
+        },
+        {
+          "asset": "bolha-p",
+          "x": 50,
+          "y": 90,
+          "width": 6,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 1.0
+        },
+        {
+          "asset": "bolha-g",
+          "x": 50,
+          "y": 90,
+          "width": 11,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 2.0
+        },
+        {
+          "asset": "bolha-p",
+          "x": 50,
+          "y": 90,
+          "width": 5.5,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 3.0
+        },
+        {
+          "asset": "bolha-m",
+          "x": 50,
+          "y": 90,
+          "width": 9,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 4.0
+        },
+        {
+          "asset": "bolha-p",
+          "x": 50,
+          "y": 90,
+          "width": 6.5,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 5.0
+        },
+        {
+          "asset": "bolha-m",
+          "x": 50,
+          "y": 90,
+          "width": 8,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 6.0
+        },
+        {
+          "asset": "bolha-g",
+          "x": 50,
+          "y": 90,
+          "width": 10.5,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 7.0
+        },
+        {
+          "asset": "bolha-p",
+          "x": 50,
+          "y": 90,
+          "width": 5.5,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 8.0
+        },
+        {
+          "asset": "bolha-m",
+          "x": 50,
+          "y": 90,
+          "width": 8.5,
+          "plane": "front",
+          "motion": "trail",
+          "delay": 9.0
         }
       ],
       "canvas": {
@@ -943,33 +1040,6 @@
           "duration": 60,
           "phase": 0.8,
           "shape": "disco"
-        },
-        {
-          "variant": "aqua",
-          "y": 37,
-          "size": 3.6,
-          "plane": "far",
-          "direction": "rtl",
-          "duration": 50,
-          "phase": 0.2
-        },
-        {
-          "variant": "aqua",
-          "y": 39.5,
-          "size": 3.4,
-          "plane": "far",
-          "direction": "rtl",
-          "duration": 50,
-          "phase": 0.23
-        },
-        {
-          "variant": "aqua",
-          "y": 41.5,
-          "size": 3.2,
-          "plane": "far",
-          "direction": "rtl",
-          "duration": 50,
-          "phase": 0.26
         },
         {
           "variant": "coral",
@@ -1009,6 +1079,60 @@
           "duration": 30,
           "phase": 0.55,
           "shape": "disco"
+        },
+        {
+          "variant": "aqua",
+          "y": 46.5,
+          "size": 4.4,
+          "plane": "mid",
+          "direction": "ltr",
+          "duration": 38,
+          "phase": 0.3
+        },
+        {
+          "variant": "aqua",
+          "y": 49,
+          "size": 4.0,
+          "plane": "mid",
+          "direction": "ltr",
+          "duration": 38,
+          "phase": 0.325
+        },
+        {
+          "variant": "aqua",
+          "y": 51.5,
+          "size": 4.6,
+          "plane": "mid",
+          "direction": "ltr",
+          "duration": 38,
+          "phase": 0.345
+        },
+        {
+          "variant": "aqua",
+          "y": 47.5,
+          "size": 3.6,
+          "plane": "mid",
+          "direction": "ltr",
+          "duration": 38,
+          "phase": 0.36
+        },
+        {
+          "variant": "aqua",
+          "y": 53,
+          "size": 4.2,
+          "plane": "mid",
+          "direction": "ltr",
+          "duration": 38,
+          "phase": 0.375
+        },
+        {
+          "variant": "aqua",
+          "y": 50,
+          "size": 3.8,
+          "plane": "mid",
+          "direction": "ltr",
+          "duration": 38,
+          "phase": 0.395
         }
       ],
       "ambience": {
@@ -1382,33 +1506,6 @@
           "shape": "disco"
         },
         {
-          "variant": "aqua",
-          "y": 37,
-          "size": 3.6,
-          "plane": "far",
-          "direction": "rtl",
-          "duration": 50,
-          "phase": 0.2
-        },
-        {
-          "variant": "aqua",
-          "y": 39.5,
-          "size": 3.4,
-          "plane": "far",
-          "direction": "rtl",
-          "duration": 50,
-          "phase": 0.23
-        },
-        {
-          "variant": "aqua",
-          "y": 41.5,
-          "size": 3.2,
-          "plane": "far",
-          "direction": "rtl",
-          "duration": 50,
-          "phase": 0.26
-        },
-        {
           "variant": "coral",
           "y": 52,
           "size": 9,
@@ -1684,7 +1781,47 @@
       "eyebrow": "Agora que você já sabe onde e quando…",
       "headline": "só falta uma coisa: espero por você!",
       "body": "Sua presença vai deixar esse dia ainda mais especial.",
-      "replay": true
+      "replay": true,
+      "backdrop": "bg-praia",
+      "ornaments": [
+        {
+          "asset": "conchas-leque",
+          "x": 82,
+          "y": 84,
+          "width": 34,
+          "rotate": -4,
+          "motion": "none"
+        },
+        {
+          "asset": "cordao-perolas",
+          "x": 20,
+          "y": 87,
+          "width": 34,
+          "rotate": 4,
+          "motion": "none"
+        },
+        {
+          "asset": "perola-a",
+          "x": 58,
+          "y": 89,
+          "width": 5,
+          "motion": "twinkle"
+        },
+        {
+          "asset": "perola-b",
+          "x": 45,
+          "y": 85,
+          "width": 4.4,
+          "motion": "twinkle"
+        },
+        {
+          "asset": "perola-a",
+          "x": 8,
+          "y": 79,
+          "width": 4,
+          "motion": "twinkle"
+        }
+      ]
     }
   ],
   "actions": [

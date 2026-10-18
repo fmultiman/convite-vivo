@@ -13,7 +13,7 @@ type GateState = "closed" | "opening" | "open";
 
 const TRANSITION_MS = 1600;
 /** A entrada em camadas tem a abertura do envelope + mergulho (ver entry-art.module.css). */
-const ART_TRANSITION_MS = 1700;
+const ART_TRANSITION_MS = 2500;
 /** Com reduced motion o estado aberto fica visível por um instante, sem movimento. */
 const ART_REDUCED_MS = 500;
 

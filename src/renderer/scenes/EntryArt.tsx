@@ -106,6 +106,14 @@ const GLINTS: { x: number; y: number; size: number; delay: number }[] = [
   { x: 44, y: 58, size: 5, delay: 3.0 },
 ];
 
+/** Raios do sol (alto à direita): posição na largura do palco, ângulo, intensidade e ritmo da respiração. */
+const SUN_RAYS = [
+  { x: 90, w: 15, a: 12, o: 0.5, dur: 9, delay: 0 },
+  { x: 85, w: 9, a: 24, o: 0.42, dur: 11, delay: -4 },
+  { x: 95, w: 18, a: 5, o: 0.36, dur: 13, delay: -7 },
+  { x: 78, w: 7, a: 33, o: 0.3, dur: 10, delay: -2 },
+] as const;
+
 /**
  * Arte em camadas da entrada: fundo + decoração + motivo em imagem, todos
  * registrados ao "palco" (a caixa da arte de fundo), de modo que o envelope
@@ -202,6 +210,13 @@ export function EntryArt({
         <div className={styles.world}>
           <LayerImage image={background} className={styles.bg} priority marker="bg" onReady={() => setSecondary(true)} />
           <div className={styles.sunPath} aria-hidden="true" />
+          {/* Sol no alto à direita: halo que respira e raios suaves atravessando a água e a areia. */}
+          <div className={styles.sunGlow} aria-hidden="true" />
+          <div className={styles.rays} aria-hidden="true">
+            {SUN_RAYS.map((r, i) => (
+              <span key={i} style={{ "--x": r.x, "--w": r.w, "--a": r.a, "--o": r.o, "--dur": `${r.dur}s`, "--delay": `${r.delay}s` } as CSSProperties} />
+            ))}
+          </div>
           <div className={styles.glints} aria-hidden="true">
             {GLINTS.map((g, i) => (
               <span
@@ -248,6 +263,8 @@ export function EntryArt({
           >
             <span className={styles.envStack}>
               <span className={styles.glow} aria-hidden="true" />
+              {/* Só existe na abertura: a luz que sai de dentro do envelope. */}
+              <span className={styles.beams} aria-hidden="true" />
               <span className={styles.envTilt}>
                 <span className={styles.shadow} aria-hidden="true" />
                 {motifImage ? <LayerImage image={motifImage} className={styles.envClosed} priority /> : null}

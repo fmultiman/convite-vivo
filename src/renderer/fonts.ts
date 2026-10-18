@@ -9,7 +9,15 @@
 import { Cormorant_Garamond, Fraunces, Jost, Nunito } from "next/font/google";
 import type { FontKey } from "@/contract/event.schema";
 
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", preload: false });
+// Eixos opcionais: SOFT (terminais arredondados, o ar "de conto"), WONK (itálico mais gracioso) e opsz
+// (o desenho se adapta ao tamanho: em corpo pequeno fica mais robusto e legível sobre a arte).
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  axes: ["SOFT", "WONK", "opsz"],
+  variable: "--font-fraunces",
+  display: "swap",
+  preload: false,
+});
 const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito", display: "swap", preload: false });
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],

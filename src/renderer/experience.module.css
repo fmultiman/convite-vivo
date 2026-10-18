@@ -6,6 +6,8 @@
   color: var(--cv-text);
   font-family: var(--cv-font-body);
   line-height: 1.5;
+  /* Fraunces (títulos): terminais suaves e itálico gracioso; ignorado por fontes sem esses eixos. */
+  font-variation-settings: "SOFT" 100, "WONK" 1;
 }
 /* Fundo fixo via pseudo-elemento (background-attachment: fixed falha no iOS). */
 .experience::before {
@@ -127,6 +129,19 @@
   clip-path: inset(0);
   /* Fim do grupo: a base da arte se dissolve no fundo da página (sem corte seco). */
   mask-image: linear-gradient(to bottom, #000 calc(100% - 16dvh), transparent);
+}
+/* Trava da concha: enquanto o convite não foi aberto, o que vem depois do grupo (mensagem final,
+   rodapé) nem existe na página, então a rolagem termina na concha. O grupo também não se dissolve
+   no fim (o botão fica na base da tela). */
+:global(html[data-cv-lock]) .stageGroup {
+  mask-image: none;
+}
+:global(html[data-cv-lock]) .main {
+  padding-bottom: 0;
+}
+:global(html[data-cv-lock]) .stageGroup ~ *,
+:global(html[data-cv-lock]) .footer {
+  display: none;
 }
 /* Grupo logo depois da entrada: ele (e não o primeiro palco) anula o padding do <main>, para que o
    recorte do grupo comece no topo da tela. */

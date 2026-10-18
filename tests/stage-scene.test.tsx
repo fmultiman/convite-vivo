@@ -107,7 +107,7 @@ describe("cena stage — HTML", () => {
   it("no servidor não há canvas (aprimoramento no cliente); bolhas, peixes, luz e partículas em CSS já vêm no HTML", () => {
     expect(html).not.toContain("<canvas");
     expect((mergulho.match(/data-plane="front"/g) ?? []).length).toBeGreaterThanOrEqual(8); // bolhas CSS em primeiro plano
-    expect((mergulho.match(/data-fish/g) ?? []).length).toBe(9); // peixes SVG independentes
+    expect((mergulho.match(/data-fish/g) ?? []).length).toBe(12); // peixes SVG independentes (6 do cardume do meio incluídos)
     expect((mergulho.match(/data-layer="(bg|far|mid|near|front)"/g) ?? []).length).toBe(5); // planos de profundidade
     expect(mergulho).toMatch(/class="[^"]*ray[^"]*"/); // raios de luz
     expect(mergulho).not.toContain("data-feature"); // sem destaque nesta cena
@@ -116,7 +116,7 @@ describe("cena stage — HTML", () => {
   it("peixes são decorativos: SVG oculto aos leitores de tela, sem texto nem imagem externa", () => {
     const stage = mergulho;
     const fish = stage.match(/<div[^>]*data-fish[^>]*>[\s\S]*?<\/svg>/g) ?? [];
-    expect(fish).toHaveLength(9);
+    expect(fish).toHaveLength(12);
     for (const f of fish) {
       expect(f).toContain('aria-hidden="true"');
       expect(f).not.toMatch(/<img|<text|<title/);
@@ -240,8 +240,12 @@ describe("cena stage — revelação de destaque (feature)", () => {
     const b = sceneOf(raw, "chegada");
     const key = (d: Record<string, unknown>) => JSON.stringify([d.asset, d.x, d.y, d.width, d.plane ?? "mid", d.motion ?? "none", d.delay ?? 0, d.flip ?? false, d.tilt ?? 0, d.rotate ?? 0]);
     const inB = new Set(b.decor.map(key));
-    for (const d of a.decor) expect(inB.has(key(d)), key(d)).toBe(true);
-    expect(b.fish).toEqual(a.fish);
+    // A trilha de bolhas e o cardume do meio são só do mergulho ("siga as bolhas"): somem na dissolução.
+    const isTrail = (d: Record<string, unknown>) => d.motion === "trail";
+    for (const d of a.decor.filter((d: Record<string, unknown>) => !isTrail(d))) expect(inB.has(key(d)), key(d)).toBe(true);
+    expect(a.decor.filter(isTrail).length).toBeGreaterThanOrEqual(8);
+    expect(b.decor.some(isTrail)).toBe(false);
+    expect(b.fish).toEqual(a.fish.filter((f: { duration: number }) => f.duration !== 38));
     expect(b.ambience.light).toBe(a.ambience.light);
     expect(b.canvas).toEqual(a.canvas);
     // o que é novo no segundo palco: só o que pertence à revelação
