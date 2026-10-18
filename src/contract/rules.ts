@@ -53,6 +53,10 @@ export function referencedAssetIds(event: EventConfig): Set<string> {
       scene.panel?.children.forEach(visit);
     }
     if (scene.kind === "image" || scene.kind === "video") ids.add(scene.asset);
+    if (scene.kind === "message") {
+      if (scene.backdrop) ids.add(scene.backdrop);
+      scene.ornaments.forEach((o) => ids.add(o.asset));
+    }
     if (scene.kind === "reveal") scene.children.forEach(visit);
   };
   event.scenes.forEach(visit);

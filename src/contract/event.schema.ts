@@ -251,6 +251,17 @@ const countdownScene = z.object({
   headline: z.string().optional(),
 });
 
+/** Enfeite do encerramento (conchas, pérolas...): posição em % da coluna da cena. */
+const endingOrnament = z.object({
+  asset: idSchema,
+  x: z.number().min(-10).max(110),
+  y: z.number().min(-10).max(110),
+  width: z.number().min(1).max(100),
+  rotate: z.number().min(-180).max(180).default(0),
+  flip: z.boolean().default(false),
+  motion: z.enum(["none", "float", "twinkle"]).default("none"),
+});
+
 const messageScene = z.object({
   kind: z.literal("message"),
   ...sceneBase,
@@ -259,6 +270,9 @@ const messageScene = z.object({
   body: z.string().optional(),
   /** Mostra botão "rever o convite" que volta ao início. */
   replay: z.boolean().default(false),
+  /** Fundo ilustrado do encerramento (imagem aprovada); sem ele a mensagem fica sobre o fundo do tema. */
+  backdrop: idSchema.optional(),
+  ornaments: z.array(endingOrnament).default([]),
 });
 
 /** Cenas que podem aparecer soltas ou dentro de uma revelação. */
@@ -295,7 +309,8 @@ export const decorItemSchema = placementSchema.extend({
    * "idle" = flutuar suave de personagem/objeto principal (sobe e desce, inclina um
    * pouco); "rise" = bolha em CSS que sobe a tela toda.
    */
-  motion: z.enum(["none", "float", "sway", "rise", "twinkle", "idle"]).default("none"),
+  /** `trail`: fila de bolhas que sobe em S, todas pelo mesmo caminho (use `delay` escalonado). */
+  motion: z.enum(["none", "float", "sway", "rise", "twinkle", "idle", "trail"]).default("none"),
   /** Sombra de contato (objeto apoiado no chão). */
   shadow: z.boolean().default(false),
   flip: z.boolean().default(false),
@@ -620,6 +635,10 @@ export const eventConfigSchema = z
           if (scene.feature) requireAsset(scene.feature.asset, "image", [...path, "feature", "asset"]);
           if (scene.panel?.frame) requireAsset(scene.panel.frame, "image", [...path, "panel", "frame"]);
           scene.panel?.children.forEach((child, i) => checkScene(child, [...path, "panel", "children", i]));
+          break;
+        case "message":
+          if (scene.backdrop) requireAsset(scene.backdrop, "image", [...path, "backdrop"]);
+          scene.ornaments.forEach((o, i) => requireAsset(o.asset, "image", [...path, "ornaments", i, "asset"]));
           break;
         case "image":
           requireAsset(scene.asset, "image", [...path, "asset"]);

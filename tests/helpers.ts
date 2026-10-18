@@ -4,7 +4,13 @@ import { eventConfigSchema, type EventConfig } from "@/contract/event.schema";
 
 /** Cópia profunda e mutável de uma config bruta, para testes de mutação. */
 export function rawMaite(): Record<string, any> {
-  return structuredClone(maite) as Record<string, any>;
+  const raw = structuredClone(maite) as Record<string, any>;
+  // Os testes NÃO dependem dos dados reais da família que a cópia local de trabalho pode carregar
+  // (horário, endereço, presentes): neutraliza aqui, como na versão versionada.
+  raw.schedule.startTime = { value: null, confirmed: false };
+  raw.venue.address = { value: null, confirmed: false };
+  raw.gifts.items = [1, 2, 3].map((i) => ({ text: `Sugestão de presente ${i} (texto a confirmar com a família)`, confirmed: false }));
+  return raw;
 }
 
 /**

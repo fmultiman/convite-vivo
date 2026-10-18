@@ -706,7 +706,8 @@
                         "sway",
                         "rise",
                         "twinkle",
-                        "idle"
+                        "idle",
+                        "trail"
                       ]
                     },
                     "shadow": {
@@ -852,7 +853,8 @@
                         "sway",
                         "rise",
                         "twinkle",
-                        "idle"
+                        "idle",
+                        "trail"
                       ]
                     },
                     "shadow": {
@@ -1209,6 +1211,63 @@
                             "replay": {
                               "default": false,
                               "type": "boolean"
+                            },
+                            "backdrop": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9][a-z0-9-]*$"
+                            },
+                            "ornaments": {
+                              "default": [],
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "asset": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9][a-z0-9-]*$"
+                                  },
+                                  "x": {
+                                    "type": "number",
+                                    "minimum": -10,
+                                    "maximum": 110
+                                  },
+                                  "y": {
+                                    "type": "number",
+                                    "minimum": -10,
+                                    "maximum": 110
+                                  },
+                                  "width": {
+                                    "type": "number",
+                                    "minimum": 1,
+                                    "maximum": 100
+                                  },
+                                  "rotate": {
+                                    "default": 0,
+                                    "type": "number",
+                                    "minimum": -180,
+                                    "maximum": 180
+                                  },
+                                  "flip": {
+                                    "default": false,
+                                    "type": "boolean"
+                                  },
+                                  "motion": {
+                                    "default": "none",
+                                    "type": "string",
+                                    "enum": [
+                                      "none",
+                                      "float",
+                                      "twinkle"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "asset",
+                                  "x",
+                                  "y",
+                                  "width"
+                                ]
+                              }
                             }
                           },
                           "required": [
@@ -1650,6 +1709,63 @@
                         "replay": {
                           "default": false,
                           "type": "boolean"
+                        },
+                        "backdrop": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9][a-z0-9-]*$"
+                        },
+                        "ornaments": {
+                          "default": [],
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "asset": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9][a-z0-9-]*$"
+                              },
+                              "x": {
+                                "type": "number",
+                                "minimum": -10,
+                                "maximum": 110
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": -10,
+                                "maximum": 110
+                              },
+                              "width": {
+                                "type": "number",
+                                "minimum": 1,
+                                "maximum": 100
+                              },
+                              "rotate": {
+                                "default": 0,
+                                "type": "number",
+                                "minimum": -180,
+                                "maximum": 180
+                              },
+                              "flip": {
+                                "default": false,
+                                "type": "boolean"
+                              },
+                              "motion": {
+                                "default": "none",
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "float",
+                                  "twinkle"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "asset",
+                              "x",
+                              "y",
+                              "width"
+                            ]
+                          }
                         }
                       },
                       "required": [
@@ -1900,6 +2016,63 @@
               "replay": {
                 "default": false,
                 "type": "boolean"
+              },
+              "backdrop": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "ornaments": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "asset": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9-]*$"
+                    },
+                    "x": {
+                      "type": "number",
+                      "minimum": -10,
+                      "maximum": 110
+                    },
+                    "y": {
+                      "type": "number",
+                      "minimum": -10,
+                      "maximum": 110
+                    },
+                    "width": {
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "rotate": {
+                      "default": 0,
+                      "type": "number",
+                      "minimum": -180,
+                      "maximum": 180
+                    },
+                    "flip": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "motion": {
+                      "default": "none",
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "float",
+                        "twinkle"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "asset",
+                    "x",
+                    "y",
+                    "width"
+                  ]
+                }
               }
             },
             "required": [

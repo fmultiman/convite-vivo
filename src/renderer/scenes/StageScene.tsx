@@ -63,15 +63,22 @@ function Motes({ count }: { count: number }) {
   );
 }
 
+/** % do topo da tela: o texto já subiu até aqui quando o destaque começa a chegar. */
+const REVEAL_BAND = 16;
+
 /**
  * Entrada da cena: um sentinela no topo do palco avisa quando o topo cruza 65 % da tela
  * (35 % do palco visível). Daí saem duas coisas, ambas conduzidas por CSS:
  *  - `data-entered`: o palco está "em cena" (liga/desliga com a rolagem; permanece ligado
  *    depois que o topo passa para cima). Em palcos consecutivos é o que dissolve o mundo
  *    do palco no quadro inteiro e avança a câmera.
- *  - `data-revealed`: a revelação do destaque, uma vez só (e avisa o canvas, que solta
+ *  - `data-revealed`: a revelação do destaque (gatilho próprio, abaixo), uma vez só (e avisa o canvas, que solta
  *    bolhas junto). "Rever o convite" rearma tudo. Com reduced motion o destaque já nasce
  *    revelado, sem animação.
+ *
+ * A revelação tem gatilho PRÓPRIO (`data-sentinel-reveal`): só dispara quando o topo do palco
+ * (onde fica o texto) chega à faixa superior da tela. Assim o texto, que sobe rolando, já passou
+ * pelo meio antes de o personagem/concha aparecer e os dois nunca competem pelo mesmo espaço.
  */
 function useReveal(ref: RefObject<HTMLElement | null>, hasFeature: boolean, observe: boolean, reduced: boolean) {
   useEffect(() => {
@@ -122,7 +129,9 @@ function useReveal(ref: RefObject<HTMLElement | null>, hasFeature: boolean, obse
     };
 
     const sentinel = el.querySelector("[data-sentinel]");
+    const revealSentinel = el.querySelector("[data-sentinel-reveal]");
     let io: IntersectionObserver | null = null;
+    let rio: IntersectionObserver | null = null;
     if (observe && !("IntersectionObserver" in window)) {
       // Sem IntersectionObserver o mundo não pode ficar escondido à espera de um sinal que não vem.
       setEntered(true);
@@ -132,14 +141,23 @@ function useReveal(ref: RefObject<HTMLElement | null>, hasFeature: boolean, obse
         (entries) => {
           for (const e of entries) {
             // "Entrou" = o sentinela está na faixa útil OU já passou por cima (continua em cena).
-            const entered = e.isIntersecting || e.boundingClientRect.top < 0;
-            setEntered(entered);
-            if (entered) reveal(false);
+            setEntered(e.isIntersecting || e.boundingClientRect.top < 0);
           }
         },
         { rootMargin: "0px 0px -35% 0px", threshold: 0 },
       );
       io.observe(sentinel);
+      if (hasFeature && revealSentinel) {
+        rio = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) if (e.isIntersecting || e.boundingClientRect.top < 0) reveal(false);
+          },
+          { rootMargin: `0px 0px -${100 - REVEAL_BAND}% 0px`, threshold: 0 },
+        );
+        rio.observe(revealSentinel);
+      } else if (hasFeature) {
+        reveal(false);
+      }
     }
     const rearm = () => {
       revealed = reduced;
@@ -151,10 +169,15 @@ function useReveal(ref: RefObject<HTMLElement | null>, hasFeature: boolean, obse
         io.unobserve(sentinel);
         io.observe(sentinel);
       }
+      if (rio && revealSentinel) {
+        rio.unobserve(revealSentinel);
+        rio.observe(revealSentinel);
+      }
     };
     window.addEventListener(EXPERIENCE_EVENTS.replay, rearm);
     return () => {
       io?.disconnect();
+      rio?.disconnect();
       window.clearTimeout(coverTimer);
       window.clearTimeout(liveTimer);
       window.removeEventListener(EXPERIENCE_EVENTS.replay, rearm);
@@ -390,6 +413,20 @@ export function StageScene({
   const [open, setOpen] = useState(false);
   const panelId = `${scene.id}-panel`;
 
+  // Trava de progressão: enquanto o painel (o convite) não foi aberto, nada depois deste palco existe
+  // na página (ver experience.module.css): a rolagem termina na concha e só o toque na pérola libera.
+  // Sem JavaScript, o painel já está aberto e nada trava.
+  const hasPanel = Boolean(scene.panel);
+  useEffect(() => {
+    if (!hasPanel) return;
+    const root = document.documentElement;
+    if (open) delete root.dataset.cvLock;
+    else root.dataset.cvLock = scene.id;
+    return () => {
+      delete root.dataset.cvLock;
+    };
+  }, [hasPanel, open, scene.id]);
+
   // "Rever o convite" fecha o painel de novo.
   useEffect(() => {
     const close = () => setOpen(false);
@@ -546,6 +583,7 @@ export function StageScene({
       aria-labelledby={titleId}
     >
       {art.feature || stack?.after ? <span className={styles.sentinel} data-sentinel aria-hidden="true" /> : null}
+      {art.feature ? <span className={styles.sentinel} data-sentinel-reveal aria-hidden="true" /> : null}
       {scene.panel ? <div className={styles.screen}>{screen}</div> : screen}
       {scene.panel ? (
         <div

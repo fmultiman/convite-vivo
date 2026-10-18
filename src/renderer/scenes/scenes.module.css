@@ -15,17 +15,18 @@
 
 .eyebrow {
   margin: 0;
-  color: var(--cv-text-muted);
+  color: color-mix(in srgb, var(--cv-accent) 55%, var(--cv-text));
   font-family: var(--cv-font-display);
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-style: italic;
+  font-weight: 500;
 }
 .headline {
   margin: 0;
   font-family: var(--cv-font-display);
-  font-size: clamp(1.6rem, 7vw, 2.3rem);
-  font-weight: 500;
-  line-height: 1.12;
+  font-size: clamp(1.7rem, 7.4vw, 2.4rem);
+  font-weight: 600;
+  line-height: 1.1;
   text-wrap: balance;
 }
 .headlineLarge {
@@ -216,6 +217,112 @@
   align-items: center;
   padding-block: 1rem;
   text-align: center;
+}
+
+/* Encerramento ilustrado: de volta à praia ao entardecer (o mesmo cenário da abertura) emerge do
+   fundo lilás da página, com conchas e pérolas no chão e brilhos na água. Só a tela do final. */
+.ending {
+  position: relative;
+  isolation: isolate;
+  width: 100vw;
+  min-height: 100dvh;
+  margin-inline: calc(50% - 50vw);
+  margin-top: -8dvh; /* o cenário emerge logo depois da dissolução do mundo submarino */
+  padding: 14dvh 1.5rem 26dvh;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+.ending > :not(.endStage) {
+  max-width: 28rem;
+}
+.endStage {
+  position: absolute;
+  inset: 0 auto 0 50%;
+  z-index: -1;
+  width: min(100vw, 560px);
+  translate: -50% 0;
+  pointer-events: none;
+}
+@media (min-width: 40rem) {
+  .endStage {
+    mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  }
+}
+.endBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 100%;
+  /* Nasce do lilás da página: sem corte seco. */
+  mask-image: linear-gradient(to bottom, transparent 6%, rgb(0 0 0 / 0.55) 34%, #000 58%, #000 86%, transparent);
+}
+.endWarm {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(90% 34% at 50% 84%, rgb(255 214 168 / 0.38), transparent 70%),
+    linear-gradient(to top, transparent 8%, rgb(255 188 214 / 0.16) 30%, transparent 56%);
+}
+.endGlint {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #fff, rgb(255 255 255 / 0));
+  box-shadow: 0 0 8px 2px rgb(255 255 255 / 0.7);
+  opacity: 0;
+  animation: end-glint 4s ease-in-out infinite;
+}
+.endOrn {
+  position: absolute;
+  translate: -50% -50%;
+  rotate: var(--rot, 0deg);
+  scale: var(--flip, 1) 1;
+  filter: drop-shadow(0 6px 8px rgb(110 58 38 / 0.35));
+}
+.endOrn img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.endOrn[data-motion="float"] {
+  animation: end-float 6s ease-in-out infinite alternate;
+}
+.endOrn[data-motion="twinkle"] {
+  animation: end-twinkle 3.4s ease-in-out infinite alternate;
+}
+@keyframes end-glint {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+}
+@keyframes end-float {
+  to {
+    transform: translateY(-1.6%);
+  }
+}
+@keyframes end-twinkle {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .endGlint,
+  .endOrn[data-motion] {
+    animation: none;
+  }
+  .endGlint {
+    opacity: 0.5;
+  }
 }
 
 @keyframes pop-in {
